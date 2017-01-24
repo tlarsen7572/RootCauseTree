@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>19c6e36c-45d7-457e-9ce8-9f15dfaae39e</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>com.PorcupineSupernova.RootCauseTreeCore</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AddCauseCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cause.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ChangeNodeTextCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Node.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Problem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IRootCauseCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SequentialGuid.cs" />
+  </ItemGroup>
+</Project>
