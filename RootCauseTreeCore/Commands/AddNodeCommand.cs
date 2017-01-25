@@ -4,16 +4,16 @@ using System.Text;
 
 namespace com.PorcupineSupernova.RootCauseTreeCore
 {
-    class AddCauseCommand : IRootCauseCommand
+    class AddNodeCommand : IRootCauseCommand
     {
         private Node _StartNode;
         private Node _NewNode;
 
         public Node NewNode { get { return _NewNode; } }
 
-        public AddCauseCommand(Node startNode, string text) : this(startNode, text, false) { }
+        public AddNodeCommand(Node startNode, string text) : this(startNode, text, false) { }
 
-        public AddCauseCommand(Node startNode,string text,bool executeImmediately)
+        public AddNodeCommand(Node startNode,string text,bool executeImmediately)
         {
             _StartNode = startNode;
             _NewNode = new Cause(text);
@@ -23,11 +23,13 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         public void Execute()
         {
             _StartNode.AddNode(_NewNode);
+            _NewNode.AddParent(_StartNode);
         }
 
         public void Undo()
         {
             _StartNode.RemoveNode(_NewNode);
+            _NewNode.RemoveParent(_StartNode);
         }
     }
 }

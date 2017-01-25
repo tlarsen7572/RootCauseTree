@@ -9,12 +9,15 @@
     <Import_RootNamespace>com.PorcupineSupernova.RootCauseTreeCore</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)AddCauseCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cause.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ChangeNodeTextCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\AddNodeCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\AddLinkCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\ChangeNodeTextCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\IRootCauseCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\RemoveLinkCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\RemoveNodeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Node.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Problem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IRootCauseCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SequentialGuid.cs" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using com.PorcupineSupernova.RootCauseTreeCore;
 
@@ -7,56 +8,63 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
     [TestClass]
     public class ProblemTests
     {
-        private Problem problem;
+        private Problem problem = new Problem("This is my problem");
+        string defaultTestTree = "Problem,Node 1,Node 1.1,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2";
 
-        [TestInitialize]
-        public void Startup()
-        {
-            problem = new Problem("This is my problem");
-            System.Diagnostics.Debug.WriteLine(problem.NodeId.ToString());
-        }
-        
         [TestMethod]
         public void NewProblem()
         {
             Assert.AreEqual("This is my problem", problem.Text);
             Assert.AreEqual(0, problem.CountNodes());
+            Assert.AreEqual(0, problem.CountParentNodes());
         }
 
         [TestMethod]
         public void AddNodeAndUndo()
         {
-            IRootCauseCommand command = new AddCauseCommand(problem, "Child 1");
+            IRootCauseCommand command = new AddNodeCommand(problem, "Child 1");
             command.Execute();
             Assert.AreEqual(1, problem.CountNodes());
             foreach (var node in problem.Nodes)
             {
                 Assert.AreEqual("Child 1", node.Text);
+                Assert.AreEqual(1, node.CountParentNodes());
             }
             command.Undo();
             Assert.AreEqual(0, problem.CountNodes());
         }
 
         [TestMethod]
+        public void AddNodeTwice()
+        {
+            IRootCauseCommand command = new AddNodeCommand(problem, "Child 1", true);
+            command.Execute();
+            Assert.AreEqual(1, problem.CountNodes());
+        }
+
+        [TestMethod]
         public void AddNodeImmediately()
         {
-            Node node = new AddCauseCommand(problem, "Child 1", true).NewNode;
+            Assert.AreEqual(0, problem.CountNodes());
+            Node node = new AddNodeCommand(problem, "Child 1", true).NewNode;
             Assert.AreEqual("Child 1", node.Text);
+            Assert.AreEqual(1, node.CountParentNodes());
             Assert.AreEqual(1, problem.CountNodes());
         }
 
         [TestMethod]
         public void ChangeNodeTextAndUndo()
         {
-            AddCauseCommand addCommand = new AddCauseCommand(problem, "Child 1");
-            addCommand.Execute();
-            addCommand = new AddCauseCommand(problem, "Child 2");
-            Node node = addCommand.NewNode;
-            addCommand.Execute();
+            AddNodeCommand addCommand = new AddNodeCommand(problem, "Child 1",true);
+            addCommand = new AddNodeCommand(problem, "Child 2");
+            Node node = new AddNodeCommand(problem, "Child 2",true).NewNode;
+
             ChangeNodeTextCommand txtCommand = new ChangeNodeTextCommand(node, "Child 2");
+            Assert.AreEqual("Child 2", node.Text);
             txtCommand.Execute();
             Assert.AreEqual("Child 2", node.Text);
             txtCommand = new ChangeNodeTextCommand(node, "Child 3");
+            Assert.AreEqual("Child 2", node.Text);
             txtCommand.Execute();
             Assert.AreEqual("Child 3", node.Text);
             txtCommand.Undo();
@@ -66,6 +74,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         [TestMethod]
         public void ChangeNodeTextImmediately()
         {
+            Assert.AreEqual("This is my problem", problem.Text);
             new ChangeNodeTextCommand(problem, "New problem", true);
             Assert.AreEqual("New problem", problem.Text);
         }
@@ -73,11 +82,118 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         [TestMethod]
         public void TestBuildTestTree()
         {
-            Node node = BuildTestTree();
-            string treeString = StringifyTree(node);
+            var dict = BuildTestTree();
+            string treeString = StringifyTree(dict["Problem"]);
             Assert.AreEqual(
-                "Problem,Node 1,Node 1.1,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2",
+                defaultTestTree,
                 treeString);
+            foreach (var node in dict.Values)
+            {
+                if (node.Text.Equals("Problem"))
+                {
+                    Assert.AreEqual(0, node.CountParentNodes());
+                }
+                else
+                {
+                    Assert.AreEqual(1, node.CountParentNodes());
+
+                }
+            } 
+        }
+
+        [TestMethod]
+        public void AddLinkAndUndo()
+        {
+            var dict = BuildTestTree();
+            AddLinkCommand command = new AddLinkCommand(dict["Node 1.1"], dict["Node 2.2"]);
+            Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+            Assert.AreEqual(1, dict["Node 2.2"].CountParentNodes());
+            command.Execute();
+            Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
+            Assert.AreEqual(2, dict["Node 2.2"].CountParentNodes());
+            command.Undo();
+            Assert.AreEqual(1, dict["Node 2.2"].CountParentNodes());
+            Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+        }
+
+        [TestMethod]
+        public void AddLinkImmediately()
+        {
+            var dict = BuildTestTree();
+            AddLinkCommand command = new AddLinkCommand(dict["Node 1.1"], dict["Node 2.2"],true);
+            Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
+        }
+
+        [TestMethod]
+        public void RemoveLinkAndUndo()
+        {
+            var dict = BuildTestTree();
+            new AddLinkCommand(dict["Node 1.1"], dict["Node 2.2"],true);
+            RemoveLinkCommand command = new RemoveLinkCommand(dict["Node 1.1"], dict["Node 2.2"]);
+            Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
+            Assert.AreEqual(2, dict["Node 2.2"].CountParentNodes());
+            command.Execute();
+            Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+            Assert.AreEqual(1, dict["Node 2.2"].CountParentNodes());
+            command.Undo();
+            Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
+            Assert.AreEqual(2, dict["Node 2.2"].CountParentNodes());
+        }
+
+        [TestMethod]
+        public void RemoveLinkImmediately()
+        {
+            var dict = BuildTestTree();
+            new AddLinkCommand(dict["Node 1.1"], dict["Node 2.2"], true);
+            Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
+            new RemoveLinkCommand(dict["Node 1.1"], dict["Node 2.2"], true);
+            Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+        }
+
+        [TestMethod]
+        public void RemoveLastLinkOfLastNode()
+        {
+            var dict = BuildTestTree();
+            IRootCauseCommand command = new RemoveLinkCommand(dict["Node 1"], dict["Node 1.2"],true);
+            Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
+            command.Undo();
+            Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+        }
+
+        [TestMethod]
+        public void RemoveLastLinkOfMiddleNode()
+        {
+            var dict = BuildTestTree();
+            IRootCauseCommand command = new RemoveLinkCommand(dict["Problem"], dict["Node 1"], true);
+            Assert.AreEqual("Problem,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
+            command.Undo();
+            Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+        }
+
+        [TestMethod]
+        public void RemoveNodeAndUndo()
+        {
+            var dict = BuildTestTree();
+            IRootCauseCommand command = new RemoveNodeCommand(dict["Node 1"]);
+            Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+            command.Execute();
+            foreach (var node in new Node[]{ dict["Node 1.1"],dict["Node 1.2"]})
+            {
+                Assert.AreEqual(1, node.CountParentNodes());
+                foreach (var parent in node.ParentNodes)
+                {
+                    Assert.AreEqual("Problem", parent.Text);
+                }
+            }
+
+            Assert.AreEqual(3, dict["Problem"].CountNodes());
+            foreach (var node in dict["Problem"].Nodes)
+            {
+                Assert.IsTrue("Node 1.1,Node 1.2,Node 2".Contains(node.Text));
+            }
+            
+            command.Undo();
+            Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
         }
 
         /* This method builds a complex tree for some of the link and removal command testing.
@@ -91,18 +207,29 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
          *              -> Node 2.1.1
          *          -> Node 2.2
          */
-        private Node BuildTestTree()
+        private Dictionary<string,Node> BuildTestTree()
         {
+            Dictionary<string, Node> dict = new Dictionary<string, Node>();
             Node node;
             Problem testTree = new Problem("Problem");
-            node = new AddCauseCommand(testTree, "Node 1",true).NewNode;
-            new AddCauseCommand(node, "Node 1.1").Execute();
-            new AddCauseCommand(node, "Node 1.2").Execute();
-            Node node2 = new AddCauseCommand(testTree, "Node 2", true).NewNode;
-            node = new AddCauseCommand(node2, "Node 2.1", true).NewNode;
-            new AddCauseCommand(node, "Node 2.1.1").Execute();
-            new AddCauseCommand(node2, "Node 2.2").Execute();
-            return testTree;
+            dict.Add(testTree.Text, testTree);
+
+            node = new AddNodeCommand(testTree, "Node 1",true).NewNode;
+            dict.Add(node.Text, node);
+
+            dict.Add("Node 1.1", new AddNodeCommand(node, "Node 1.1",true).NewNode);
+            dict.Add("Node 1.2", new AddNodeCommand(node, "Node 1.2", true).NewNode);
+
+            Node node2 = new AddNodeCommand(testTree, "Node 2", true).NewNode;
+            dict.Add(node2.Text, node2);
+
+            node = new AddNodeCommand(node2, "Node 2.1", true).NewNode;
+            dict.Add(node.Text, node);
+
+            dict.Add("Node 2.1.1", new AddNodeCommand(node, "Node 2.1.1", true).NewNode);
+            dict.Add("Node 2.2", new AddNodeCommand(node2, "Node 2.2", true).NewNode);
+
+            return dict;
         }
 
         private string StringifyTree(Node node)
