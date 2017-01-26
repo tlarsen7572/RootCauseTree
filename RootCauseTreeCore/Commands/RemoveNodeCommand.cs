@@ -10,11 +10,14 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         private HashSet<Node> _Nodes;
         private HashSet<Node> _Parents;
 
-        public RemoveNodeCommand(Node removeNode)
+        public RemoveNodeCommand(Node removeNode) : this(removeNode, false) { }
+
+        public RemoveNodeCommand(Node removeNode,bool executeImmediately)
         {
             _Nodes = new HashSet<Node>();
             _Parents = new HashSet<Node>();
             _RemoveNode = removeNode;
+            if (executeImmediately) { Execute(); }
         }
 
         public void Execute()
@@ -52,7 +55,23 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public void Undo()
         {
-
+            foreach (var node in _Nodes)
+            {
+                _RemoveNode.AddNode(node);
+                node.AddParent(_RemoveNode);
+                foreach (var parent in _Parents)
+                {
+                    parent.RemoveNode(node);
+                    node.RemoveParent(parent);
+                }
+            }
+            foreach (var parent in _Parents)
+            {
+                parent.AddNode(_RemoveNode);
+                _RemoveNode.AddParent(parent);
+            }
+            _Nodes.Clear();
+            _Parents.Clear();
         }
     }
 }

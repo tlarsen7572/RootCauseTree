@@ -14,9 +14,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AddLinkCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\ChangeNodeTextCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\IRootCauseCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\MoveNodeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\RemoveLinkCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\RemoveNodeChainCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\RemoveNodeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Node.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NodeFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Problem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SequentialGuid.cs" />
   </ItemGroup>

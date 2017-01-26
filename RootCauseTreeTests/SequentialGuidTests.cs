@@ -14,7 +14,8 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             for (int i = 0; i < 100; i++)
             {
                 guids[i] = SequentialGuid.NewGuid();
-                System.Threading.Thread.Sleep(10);  //DateTime.Now's resolution is too low to not use a sleep command.
+                System.Diagnostics.Debug.WriteLine(guids[i].ToString());
+                System.Threading.Thread.Sleep(1);  //DateTime.Now's resolution is too low to not use a sleep command.
             }
             for (int i = 1; i < 100; i++)
             {

@@ -4,8 +4,9 @@ using System.Text;
 
 namespace com.PorcupineSupernova.RootCauseTreeCore
 {
-    class Cause : Node
+    sealed class Cause : Node
     {
-        internal Cause(string text) : base(text) { }
+        public Cause(string text) : base(text) { }
+        public Cause(string text,Guid nodeId) : base(text, nodeId) { }
     }
 }

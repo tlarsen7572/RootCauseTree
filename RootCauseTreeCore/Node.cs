@@ -8,8 +8,8 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
     {
         private Guid _NodeId;
         private string _Text;
-        private Dictionary<Guid,Node> _Nodes;
-        private Dictionary<Guid, Node> _ParentNodes;
+        private SortedDictionary<Guid,Node> _Nodes;
+        private SortedDictionary<Guid, Node> _ParentNodes;
 
         public Guid NodeId { get { return _NodeId; } }
         public string Text { get { return _Text; } }
@@ -17,12 +17,13 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         public IEnumerable<Node> ParentNodes { get { return _ParentNodes.Values; } }
 
         private Node() { }
-        internal Node(string text)
+        internal Node(string text) : this(text, SequentialGuid.NewGuid()) { }
+        internal Node(string text,Guid nodeId)
         {
-            _NodeId = SequentialGuid.NewGuid();
             _Text = text;
-            _Nodes = new Dictionary<Guid,Node>();
-            _ParentNodes = new Dictionary<Guid, Node>();
+            _NodeId = nodeId;
+            _Nodes = new SortedDictionary<Guid, Node>();
+            _ParentNodes = new SortedDictionary<Guid, Node>();
         }
 
         public int CountNodes()
