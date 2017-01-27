@@ -22,7 +22,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         [TestMethod]
         public void AddNodeAndUndo()
         {
-            IRootCauseCommand command = new AddNodeCommand(problem, "Child 1");
+            IRootCauseCommand command = new AddNodeCommand(new NullDb(), problem, "Child 1");
             command.Execute();
             Assert.AreEqual(1, problem.CountNodes());
             foreach (var node in problem.Nodes)
@@ -37,7 +37,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         [TestMethod]
         public void AddNodeTwice()
         {
-            IRootCauseCommand command = new AddNodeCommand(problem, "Child 1", true);
+            IRootCauseCommand command = new AddNodeCommand(new NullDb(), problem, "Child 1", true);
             command.Execute();
             Assert.AreEqual(1, problem.CountNodes());
         }
@@ -46,7 +46,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void AddNodeImmediately()
         {
             Assert.AreEqual(0, problem.CountNodes());
-            Node node = new AddNodeCommand(problem, "Child 1", true).NewNode;
+            Node node = new AddNodeCommand(new NullDb(), problem, "Child 1", true).NewNode;
             Assert.AreEqual("Child 1", node.Text);
             Assert.AreEqual(1, node.CountParentNodes());
             Assert.AreEqual(1, problem.CountNodes());
@@ -55,26 +55,26 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         [TestMethod]
         public void TestFactory()
         {
-            Node node = NodeFactory.CreateProblem("Problem", new Guid("7f06b704-4594-08d4-5ab9-89f958d38246"));
+            Node node = NodeFactory.CreateProblem("Problem", 1);
             Assert.AreEqual("Problem", node.Text);
-            Assert.AreEqual("7f06b704-4594-08d4-5ab9-89f958d38246", node.NodeId.ToString());
-            node = NodeFactory.CreateCause("Cause", new Guid("7f083de2-4594-08d4-9c99-4a90b5b39046"));
+            Assert.AreEqual(1, node.NodeId);
+            node = NodeFactory.CreateCause("Cause", 2);
             Assert.AreEqual("Cause", node.Text);
-            Assert.AreEqual("7f083de2-4594-08d4-9c99-4a90b5b39046", node.NodeId.ToString());
+            Assert.AreEqual(2, node.NodeId);
         }
 
         [TestMethod]
         public void ChangeNodeTextAndUndo()
         {
-            AddNodeCommand addCommand = new AddNodeCommand(problem, "Child 1",true);
-            addCommand = new AddNodeCommand(problem, "Child 2");
-            Node node = new AddNodeCommand(problem, "Child 2",true).NewNode;
+            AddNodeCommand addCommand = new AddNodeCommand(new NullDb(), problem, "Child 1",true);
+            addCommand = new AddNodeCommand(new NullDb(), problem, "Child 2");
+            Node node = new AddNodeCommand(new NullDb(), problem, "Child 2",true).NewNode;
 
-            ChangeNodeTextCommand txtCommand = new ChangeNodeTextCommand(node, "Child 2");
+            ChangeNodeTextCommand txtCommand = new ChangeNodeTextCommand(new NullDb(), node, "Child 2");
             Assert.AreEqual("Child 2", node.Text);
             txtCommand.Execute();
             Assert.AreEqual("Child 2", node.Text);
-            txtCommand = new ChangeNodeTextCommand(node, "Child 3");
+            txtCommand = new ChangeNodeTextCommand(new NullDb(), node, "Child 3");
             Assert.AreEqual("Child 2", node.Text);
             txtCommand.Execute();
             Assert.AreEqual("Child 3", node.Text);
@@ -86,7 +86,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void ChangeNodeTextImmediately()
         {
             Assert.AreEqual("This is my problem", problem.Text);
-            new ChangeNodeTextCommand(problem, "New problem", true);
+            new ChangeNodeTextCommand(new NullDb(), problem, "New problem", true);
             Assert.AreEqual("New problem", problem.Text);
         }
 
@@ -114,7 +114,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void AddLinkAndUndo()
         {
             var dict = BuildTestTree();
-            AddLinkCommand command = new AddLinkCommand(dict["Node 1.1"], dict["Node 2.2"]);
+            AddLinkCommand command = new AddLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"]);
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
             Assert.AreEqual(1, dict["Node 2.2"].CountParentNodes());
             command.Execute();
@@ -129,7 +129,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void AddLinkImmediately()
         {
             var dict = BuildTestTree();
-            AddLinkCommand command = new AddLinkCommand(dict["Node 1.1"], dict["Node 2.2"],true);
+            AddLinkCommand command = new AddLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"],true);
             Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
         }
 
@@ -137,8 +137,8 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void RemoveLinkAndUndo()
         {
             var dict = BuildTestTree();
-            new AddLinkCommand(dict["Node 1.1"], dict["Node 2.2"],true);
-            RemoveLinkCommand command = new RemoveLinkCommand(dict["Node 1.1"], dict["Node 2.2"]);
+            new AddLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"],true);
+            RemoveLinkCommand command = new RemoveLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"]);
             Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
             Assert.AreEqual(2, dict["Node 2.2"].CountParentNodes());
             command.Execute();
@@ -153,9 +153,9 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void RemoveLinkImmediately()
         {
             var dict = BuildTestTree();
-            new AddLinkCommand(dict["Node 1.1"], dict["Node 2.2"], true);
+            new AddLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"], true);
             Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
-            new RemoveLinkCommand(dict["Node 1.1"], dict["Node 2.2"], true);
+            new RemoveLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"], true);
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
         }
 
@@ -163,7 +163,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void RemoveLastLinkOfLastNode()
         {
             var dict = BuildTestTree();
-            IRootCauseCommand command = new RemoveLinkCommand(dict["Node 1"], dict["Node 1.2"],true);
+            IRootCauseCommand command = new RemoveLinkCommand(new NullDb(), dict["Node 1"], dict["Node 1.2"],true);
             Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
             command.Undo();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
@@ -173,7 +173,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void RemoveLastLinkOfMiddleNode()
         {
             var dict = BuildTestTree();
-            IRootCauseCommand command = new RemoveLinkCommand(dict["Problem"], dict["Node 1"], true);
+            IRootCauseCommand command = new RemoveLinkCommand(new NullDb(), dict["Problem"], dict["Node 1"], true);
             Assert.AreEqual("Problem,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
             command.Undo();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
@@ -183,7 +183,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void RemoveNodeAndUndo()
         {
             var dict = BuildTestTree();
-            IRootCauseCommand command = new RemoveNodeCommand(dict["Node 1"]);
+            IRootCauseCommand command = new RemoveNodeCommand(new NullDb(), dict["Node 1"]);
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
             command.Execute();
             foreach (var node in new Node[]{ dict["Node 1.1"],dict["Node 1.2"]})
@@ -210,7 +210,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         {
             var dict = BuildTestTree();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
-            new RemoveNodeCommand(dict["Node 1.1"], true);
+            new RemoveNodeCommand(new NullDb(), dict["Node 1.1"], true);
             Assert.AreEqual("Problem,Node 1,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
         }
 
@@ -218,7 +218,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void RemoveNodeChainAndUndo()
         {
             var dict = BuildTestTree();
-            var command = new RemoveNodeChainCommand(dict["Node 1"]);
+            var command = new RemoveNodeChainCommand(new NullDb(), dict["Node 1"]);
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
             command.Execute();
             Assert.AreEqual("Problem,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
@@ -231,7 +231,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         {
             var dict = BuildTestTree();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
-            new RemoveNodeChainCommand(dict["Node 1"], true);
+            new RemoveNodeChainCommand(new NullDb(), dict["Node 1"], true);
             Assert.AreEqual("Problem,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
         }
 
@@ -239,7 +239,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void MoveNodeAndUndo()
         {
             var dict = BuildTestTree();
-            var command = new MoveNodeCommand(dict["Node 1"], dict["Node 2"]);
+            var command = new MoveNodeCommand(new NullDb(), dict["Node 1"], dict["Node 2"]);
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
             command.Execute();
             Assert.AreEqual("Problem,Node 2,Node 1,Node 1.1,Node 1.2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
@@ -252,7 +252,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         {
             var dict = BuildTestTree();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
-            new MoveNodeCommand(dict["Node 1"], dict["Node 2"], true);
+            new MoveNodeCommand(new NullDb(), dict["Node 1"], dict["Node 2"], true);
             Assert.AreEqual("Problem,Node 2,Node 1,Node 1.1,Node 1.2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
         }
 
@@ -261,15 +261,15 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         {
             string startStr = "Problem,Node 1,Node 1.1,Node 1.2,I have multiple parents!,Node 2,Node 2.1,Node 2.1.1,Node 2.2,I have multiple parents!";
             var dict = BuildTestTree();
-            Node node = new AddNodeCommand(dict["Node 1"], "I have multiple parents!",true).NewNode;
+            Node node = new AddNodeCommand(new NullDb(), dict["Node 1"], "I have multiple parents!",true).NewNode;
 
-            new AddLinkCommand(dict["Node 2"], node,true);
+            new AddLinkCommand(new NullDb(), dict["Node 2"], node,true);
             Assert.AreEqual(startStr, StringifyTree(dict["Problem"]));
             Assert.AreEqual(2, node.CountParentNodes());
             Assert.AreEqual(3, dict["Node 1"].CountNodes());
             Assert.AreEqual(3, dict["Node 2"].CountNodes());
 
-            IRootCauseCommand command = new MoveNodeCommand(node, dict["Problem"], true);
+            IRootCauseCommand command = new MoveNodeCommand(new NullDb(), node, dict["Problem"], true);
             Assert.AreEqual("Problem,Node 1,Node 1.1,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2,I have multiple parents!", StringifyTree(dict["Problem"]));
             Assert.AreEqual(1, node.CountParentNodes());
             Assert.AreEqual(2, dict["Node 1"].CountNodes());
@@ -296,23 +296,23 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         private Dictionary<string,Node> BuildTestTree()
         {
             Dictionary<string, Node> dict = new Dictionary<string, Node>();
+            IRootCauseDb db = new NullDb();
+            dict.Add("Problem", NodeFactory.CreateProblem("Problem", SequentialId.NewId()));
+            dict.Add("Node 1", NodeFactory.CreateCause("Node 1", SequentialId.NewId()));
+            dict.Add("Node 1.1", NodeFactory.CreateCause("Node 1.1", SequentialId.NewId()));
+            dict.Add("Node 1.2", NodeFactory.CreateCause("Node 1.2", SequentialId.NewId()));
+            dict.Add("Node 2", NodeFactory.CreateCause("Node 2", SequentialId.NewId()));
+            dict.Add("Node 2.1", NodeFactory.CreateCause("Node 2.1", SequentialId.NewId()));
+            dict.Add("Node 2.1.1", NodeFactory.CreateCause("Node 2.1.1", SequentialId.NewId()));
+            dict.Add("Node 2.2", NodeFactory.CreateCause("Node 2.2", SequentialId.NewId()));
 
-            dict.Add("Problem", NodeFactory.CreateProblem("Problem", new Guid("7ef03e2f-4594-08d4-a8f8-0914c322d848")));
-            dict.Add("Node 1", NodeFactory.CreateCause("Node 1", new Guid("7ef0ee26-4594-08d4-4993-95b48dfa1440")));
-            dict.Add("Node 1.1", NodeFactory.CreateCause("Node 1.1", new Guid("7ef25970-4594-08d4-1c05-c0b74305ad44")));
-            dict.Add("Node 1.2", NodeFactory.CreateCause("Node 1.2", new Guid("7ef3368a-4594-08d4-cb17-73af48313444")));
-            dict.Add("Node 2", NodeFactory.CreateCause("Node 2", new Guid("7ef52099-4594-08d4-1bcd-0890269be443")));
-            dict.Add("Node 2.1", NodeFactory.CreateCause("Node 2.1", new Guid("7ef9b403-4594-08d4-0977-17f5ee3f5448")));
-            dict.Add("Node 2.1.1", NodeFactory.CreateCause("Node 2.1.1", new Guid("7efc266a-4594-08d4-9508-5c6f7cf92141")));
-            dict.Add("Node 2.2", NodeFactory.CreateCause("Node 2.2", new Guid("7f004b21-4594-08d4-9674-bce1cbedb44c")));
-
-            new AddLinkCommand(dict["Problem"], dict["Node 1"], true);
-            new AddLinkCommand(dict["Problem"], dict["Node 2"], true);
-            new AddLinkCommand(dict["Node 1"], dict["Node 1.1"], true);
-            new AddLinkCommand(dict["Node 1"], dict["Node 1.2"], true);
-            new AddLinkCommand(dict["Node 2"], dict["Node 2.1"], true);
-            new AddLinkCommand(dict["Node 2"], dict["Node 2.2"], true);
-            new AddLinkCommand(dict["Node 2.1"], dict["Node 2.1.1"], true);
+            new AddLinkCommand(db, dict["Problem"], dict["Node 1"], true);
+            new AddLinkCommand(db, dict["Problem"], dict["Node 2"], true);
+            new AddLinkCommand(db, dict["Node 1"], dict["Node 1.1"], true);
+            new AddLinkCommand(db, dict["Node 1"], dict["Node 1.2"], true);
+            new AddLinkCommand(db, dict["Node 2"], dict["Node 2.1"], true);
+            new AddLinkCommand(db, dict["Node 2"], dict["Node 2.2"], true);
+            new AddLinkCommand(db, dict["Node 2.1"], dict["Node 2.1.1"], true);
 
             return dict;
         }

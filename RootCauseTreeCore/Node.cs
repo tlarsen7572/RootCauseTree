@@ -6,24 +6,24 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 {
     abstract class Node
     {
-        private Guid _NodeId;
+        private long _NodeId;
         private string _Text;
-        private SortedDictionary<Guid,Node> _Nodes;
-        private SortedDictionary<Guid, Node> _ParentNodes;
+        private SortedDictionary<long,Node> _Nodes;
+        private SortedDictionary<long, Node> _ParentNodes;
 
-        public Guid NodeId { get { return _NodeId; } }
+        public long NodeId { get { return _NodeId; } }
         public string Text { get { return _Text; } }
         public IEnumerable<Node> Nodes { get { return _Nodes.Values; } }
         public IEnumerable<Node> ParentNodes { get { return _ParentNodes.Values; } }
 
         private Node() { }
-        internal Node(string text) : this(text, SequentialGuid.NewGuid()) { }
-        internal Node(string text,Guid nodeId)
+        internal Node(string text) : this(text, SequentialId.NewId()) { }
+        internal Node(string text,long nodeId)
         {
             _Text = text;
             _NodeId = nodeId;
-            _Nodes = new SortedDictionary<Guid, Node>();
-            _ParentNodes = new SortedDictionary<Guid, Node>();
+            _Nodes = new SortedDictionary<long, Node>();
+            _ParentNodes = new SortedDictionary<long, Node>();
         }
 
         public int CountNodes()

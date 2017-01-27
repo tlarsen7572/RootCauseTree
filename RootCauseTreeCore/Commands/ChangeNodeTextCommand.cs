@@ -9,25 +9,41 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         private Node _Node;
         private string _NewText;
         private string _OldText;
+        private IRootCauseDb _Db;
 
-        public ChangeNodeTextCommand(Node node, string newText) : this(node, newText, false) { }
+        public ChangeNodeTextCommand(IRootCauseDb db, Node node, string newText) : this(db,node, newText, false) { }
 
-        public ChangeNodeTextCommand(Node node,string newText,bool executeImmediately)
+        public ChangeNodeTextCommand(IRootCauseDb db, Node node,string newText,bool executeImmediately)
         {
             _Node = node;
             _NewText = newText;
+            _Db = db;
             if (executeImmediately) { Execute(); }
         }
 
         public void Execute()
         {
-            _OldText = _Node.Text;
-            _Node.SetText(_NewText);
+            if(_Db.ChangeNodeText(_Node, _NewText))
+            {
+                _OldText = _Node.Text;
+                _Node.SetText(_NewText);
+            }
+            else
+            {
+                throw new CommandFailedDbWriteException();
+            }
         }
 
         public void Undo()
         {
-            _Node.SetText(_OldText);
+            if(_Db.ChangeNodeText(_Node, _OldText))
+            {
+                _Node.SetText(_OldText);
+            }
+            else
+            {
+                throw new CommandFailedDbWriteException();
+            }
         }
     }
 }

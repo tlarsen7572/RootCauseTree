@@ -8,11 +8,13 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
     {
         private Node _StartNode;
         private Node _EndNode;
+        private IRootCauseDb _Db;
 
-        public AddLinkCommand(Node startNode, Node endNode) : this(startNode, endNode, false) { }
+        public AddLinkCommand(IRootCauseDb db, Node startNode, Node endNode) : this(db,startNode, endNode, false) { }
 
-        public AddLinkCommand(Node startNode,Node endNode,bool executeImmediately)
+        public AddLinkCommand(IRootCauseDb db, Node startNode,Node endNode,bool executeImmediately)
         {
+            _Db = db;
             _StartNode = startNode;
             _EndNode = endNode;
             if (executeImmediately) { Execute(); }
@@ -20,14 +22,28 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public void Execute()
         {
-            _StartNode.AddNode(_EndNode);
-            _EndNode.AddParent(_StartNode);
+            if (_Db.AddLink(_StartNode, _EndNode))
+            {
+                _StartNode.AddNode(_EndNode);
+                _EndNode.AddParent(_StartNode);
+            }
+            else
+            {
+                throw new CommandFailedDbWriteException();
+            }
         }
 
         public void Undo()
         {
-            _StartNode.RemoveNode(_EndNode);
-            _EndNode.RemoveParent(_StartNode);
+            if(_Db.RemoveLink(_StartNode, _EndNode))
+            {
+                _StartNode.RemoveNode(_EndNode);
+                _EndNode.RemoveParent(_StartNode);
+            }
+            else
+            {
+                throw new CommandFailedDbWriteException();
+            }
         }
     }
 }

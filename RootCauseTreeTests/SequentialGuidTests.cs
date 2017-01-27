@@ -10,16 +10,15 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         [TestMethod]
         public void TestSequentiality()
         {
-            Guid[] guids = new Guid[100];
+            long[] ids = new long[100];
             for (int i = 0; i < 100; i++)
             {
-                guids[i] = SequentialGuid.NewGuid();
-                System.Diagnostics.Debug.WriteLine(guids[i].ToString());
-                System.Threading.Thread.Sleep(1);  //DateTime.Now's resolution is too low to not use a sleep command.
+                ids[i] = SequentialId.NewId();
+                System.Diagnostics.Debug.WriteLine(ids[i]);
             }
             for (int i = 1; i < 100; i++)
             {
-                Assert.AreEqual(1,guids[i].CompareTo(guids[i - 1]),$"Failed on {i}");
+                Assert.AreEqual(1,ids[i].CompareTo(ids[i - 1]),$"Failed on {i}");
             }
         }
     }
