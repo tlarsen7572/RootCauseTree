@@ -8,5 +8,6 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
     {
         void Execute();
         void Undo();
+        bool Executed { get; }
     }
 }

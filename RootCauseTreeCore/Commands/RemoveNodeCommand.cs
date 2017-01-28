@@ -11,6 +11,8 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         private HashSet<Node> _Parents;
         private IRootCauseDb _Db;
 
+        public bool Executed { get; private set; }
+
         public RemoveNodeCommand(IRootCauseDb db,Node removeNode) : this(db,removeNode, false) { }
 
         public RemoveNodeCommand(IRootCauseDb db, Node removeNode,bool executeImmediately)
@@ -24,70 +26,62 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public void Execute()
         {
-            if (_Db.RemoveNode(_RemoveNode))
+            if (Executed) { throw new CommandAlreadyExecutedException(); }
+            if (!_Db.RemoveNode(_RemoveNode)) { throw new CommandFailedDbWriteException(); }
+            foreach (var node in _RemoveNode.Nodes)
             {
-                foreach (var node in _RemoveNode.Nodes)
-                {
-                    _Nodes.Add(node);
-                    foreach (var parent in _RemoveNode.ParentNodes)
-                    {
-                        node.AddParent(parent);
-                    }
-                    node.RemoveParent(_RemoveNode);
-                }
-
+                _Nodes.Add(node);
                 foreach (var parent in _RemoveNode.ParentNodes)
                 {
-                    _Parents.Add(parent);
-                    foreach (var node in _RemoveNode.Nodes)
-                    {
-                        parent.AddNode(node);
-                    }
-                    parent.RemoveNode(_RemoveNode);
+                    node.AddParent(parent);
                 }
-
-                foreach (var node in _Nodes)
-                {
-                    _RemoveNode.RemoveNode(node);
-                }
-
-                foreach (var parent in _Parents)
-                {
-                    _RemoveNode.RemoveParent(parent);
-                }
+                node.RemoveParent(_RemoveNode);
             }
-            else
+
+            foreach (var parent in _RemoveNode.ParentNodes)
             {
-                throw new CommandFailedDbWriteException();
+                _Parents.Add(parent);
+                foreach (var node in _RemoveNode.Nodes)
+                {
+                    parent.AddNode(node);
+                }
+                parent.RemoveNode(_RemoveNode);
             }
+
+            foreach (var node in _Nodes)
+            {
+                _RemoveNode.RemoveNode(node);
+            }
+
+            foreach (var parent in _Parents)
+            {
+                _RemoveNode.RemoveParent(parent);
+            }
+            Executed = true;
         }
 
         public void Undo()
         {
-            if (_Db.UndoRemoveNode(_RemoveNode, _Parents, _Nodes))
+            if (!Executed) { throw new CommandNotExecutedException(); }
+            if (!_Db.UndoRemoveNode(_RemoveNode, _Parents, _Nodes)) { throw new CommandFailedDbWriteException(); }
+            foreach (var node in _Nodes)
             {
-                foreach (var node in _Nodes)
-                {
-                    _RemoveNode.AddNode(node);
-                    node.AddParent(_RemoveNode);
-                    foreach (var parent in _Parents)
-                    {
-                        parent.RemoveNode(node);
-                        node.RemoveParent(parent);
-                    }
-                }
+                _RemoveNode.AddNode(node);
+                node.AddParent(_RemoveNode);
                 foreach (var parent in _Parents)
                 {
-                    parent.AddNode(_RemoveNode);
-                    _RemoveNode.AddParent(parent);
+                    parent.RemoveNode(node);
+                    node.RemoveParent(parent);
                 }
-                _Nodes.Clear();
-                _Parents.Clear();
             }
-            else
+            foreach (var parent in _Parents)
             {
-                throw new CommandFailedDbWriteException();
+                parent.AddNode(_RemoveNode);
+                _RemoveNode.AddParent(parent);
             }
+            _Nodes.Clear();
+            _Parents.Clear();
+            Executed = false;
         }
     }
 }

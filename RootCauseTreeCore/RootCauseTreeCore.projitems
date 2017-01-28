@@ -13,7 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AddNodeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AddLinkCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\ChangeNodeTextCommand.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Commands\CommandFailedDbWriteException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\CommandExceptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\IRootCauseCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MoveNodeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\RemoveLinkCommand.cs" />

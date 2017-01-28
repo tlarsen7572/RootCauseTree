@@ -11,6 +11,8 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         private HashSet<Node> _Parents;
         private IRootCauseDb _Db;
 
+        public bool Executed { get; private set; }
+
         public MoveNodeCommand(IRootCauseDb db,Node movingNode, Node targetNode) : this(db,movingNode, targetNode, false) { }
 
         public MoveNodeCommand(IRootCauseDb db, Node movingNode, Node targetNode,bool executeImmediately)
@@ -24,44 +26,36 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public void Execute()
         {
-            if (_Db.MoveNode(_MovingNode, _TargetNode))
+            if (Executed) { throw new CommandAlreadyExecutedException(); }
+            if (!_Db.MoveNode(_MovingNode, _TargetNode)) { throw new CommandFailedDbWriteException(); }
+            foreach (var parent in _MovingNode.ParentNodes)
             {
-                foreach (var parent in _MovingNode.ParentNodes)
-                {
-                    _Parents.Add(parent);
-                }
+                _Parents.Add(parent);
+            }
 
-                foreach (var parent in _Parents)
-                {
-                    _MovingNode.RemoveParent(parent);
-                    parent.RemoveNode(_MovingNode);
-                }
-                _MovingNode.AddParent(_TargetNode);
-                _TargetNode.AddNode(_MovingNode);
-            }
-            else
+            foreach (var parent in _Parents)
             {
-                throw new CommandFailedDbWriteException();
+                _MovingNode.RemoveParent(parent);
+                parent.RemoveNode(_MovingNode);
             }
+            _MovingNode.AddParent(_TargetNode);
+            _TargetNode.AddNode(_MovingNode);
+            Executed = true;
         }
 
         public void Undo()
         {
-            if (_Db.UndoMoveNode(_MovingNode, _TargetNode, _Parents))
+            if (!Executed) { throw new CommandNotExecutedException(); }
+            if (!_Db.UndoMoveNode(_MovingNode, _TargetNode, _Parents)) { throw new CommandFailedDbWriteException(); }
+            _MovingNode.RemoveParent(_TargetNode);
+            _TargetNode.RemoveNode(_MovingNode);
+            foreach (var parent in _Parents)
             {
-                _MovingNode.RemoveParent(_TargetNode);
-                _TargetNode.RemoveNode(_MovingNode);
-                foreach (var parent in _Parents)
-                {
-                    parent.AddNode(_MovingNode);
-                    _MovingNode.AddParent(parent);
-                }
-                _Parents.Clear();
+                parent.AddNode(_MovingNode);
+                _MovingNode.AddParent(parent);
             }
-            else
-            {
-                throw new CommandFailedDbWriteException();
-            }
+            _Parents.Clear();
+            Executed = false;
         }
     }
 }

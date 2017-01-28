@@ -10,6 +10,8 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         private Node _EndNode;
         private IRootCauseDb _Db;
 
+        public bool Executed { get; private set; }
+
         public AddLinkCommand(IRootCauseDb db, Node startNode, Node endNode) : this(db,startNode, endNode, false) { }
 
         public AddLinkCommand(IRootCauseDb db, Node startNode,Node endNode,bool executeImmediately)
@@ -22,28 +24,20 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public void Execute()
         {
-            if (_Db.AddLink(_StartNode, _EndNode))
-            {
-                _StartNode.AddNode(_EndNode);
-                _EndNode.AddParent(_StartNode);
-            }
-            else
-            {
-                throw new CommandFailedDbWriteException();
-            }
+            if (Executed) { throw new CommandAlreadyExecutedException(); }
+            if (!_Db.AddLink(_StartNode, _EndNode)) { throw new CommandFailedDbWriteException(); }
+            _StartNode.AddNode(_EndNode);
+            _EndNode.AddParent(_StartNode);
+            Executed = true;
         }
 
         public void Undo()
         {
-            if(_Db.RemoveLink(_StartNode, _EndNode))
-            {
-                _StartNode.RemoveNode(_EndNode);
-                _EndNode.RemoveParent(_StartNode);
-            }
-            else
-            {
-                throw new CommandFailedDbWriteException();
-            }
+            if (!Executed) { throw new CommandNotExecutedException(); }
+            if (!_Db.RemoveLink(_StartNode, _EndNode)) { throw new CommandFailedDbWriteException(); }
+            _StartNode.RemoveNode(_EndNode);
+            _EndNode.RemoveParent(_StartNode);
+            Executed = false;
         }
     }
 }

@@ -10,6 +10,8 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         private Node _NewNode;
         private IRootCauseDb _Db;
 
+        public bool Executed { get; private set; }
+
         public Node NewNode { get { return _NewNode; } }
 
         public AddNodeCommand(IRootCauseDb db,Node startNode, string text) : this(db,startNode, text, false) { }
@@ -24,28 +26,20 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public void Execute()
         {
-            if (_Db.AddNode(_StartNode, _NewNode))
-            {
-                _StartNode.AddNode(_NewNode);
-                _NewNode.AddParent(_StartNode);
-            }
-            else
-            {
-                throw new CommandFailedDbWriteException();
-            }
+            if (Executed) { throw new CommandAlreadyExecutedException(); }
+            if (!_Db.AddNode(_StartNode, _NewNode)) { throw new CommandFailedDbWriteException(); }
+            _StartNode.AddNode(_NewNode);
+            _NewNode.AddParent(_StartNode);
+            Executed = true;
         }
 
         public void Undo()
         {
-            if (_Db.RemoveNode(_NewNode))
-            {
-                _StartNode.RemoveNode(_NewNode);
-                _NewNode.RemoveParent(_StartNode);
-            }
-            else
-            {
-                throw new CommandFailedDbWriteException();
-            }
+            if (!Executed) { throw new CommandNotExecutedException(); }
+            if (!_Db.RemoveNode(_NewNode)) { throw new CommandFailedDbWriteException(); }
+            _StartNode.RemoveNode(_NewNode);
+            _NewNode.RemoveParent(_StartNode);
+            Executed = false;
         }
     }
 }

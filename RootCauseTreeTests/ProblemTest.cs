@@ -25,6 +25,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             IRootCauseCommand command = new AddNodeCommand(new NullDb(), problem, "Child 1");
             command.Execute();
             Assert.AreEqual(1, problem.CountNodes());
+            Assert.AreEqual(true, command.Executed);
             foreach (var node in problem.Nodes)
             {
                 Assert.AreEqual("Child 1", node.Text);
@@ -32,14 +33,23 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             }
             command.Undo();
             Assert.AreEqual(0, problem.CountNodes());
+            Assert.AreEqual(false, command.Executed);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(CommandNotExecutedException))]
+        public void AddNodeUndoBeforeExecute()
+        {
+            IRootCauseCommand command = new AddNodeCommand(new NullDb(), problem, "Child 1");
+            command.Undo();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandAlreadyExecutedException))]
         public void AddNodeTwice()
         {
             IRootCauseCommand command = new AddNodeCommand(new NullDb(), problem, "Child 1", true);
             command.Execute();
-            Assert.AreEqual(1, problem.CountNodes());
         }
 
         [TestMethod]
@@ -78,8 +88,26 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             Assert.AreEqual("Child 2", node.Text);
             txtCommand.Execute();
             Assert.AreEqual("Child 3", node.Text);
+            Assert.AreEqual(true, txtCommand.Executed);
             txtCommand.Undo();
             Assert.AreEqual("Child 2", node.Text);
+            Assert.AreEqual(false, txtCommand.Executed);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandAlreadyExecutedException))]
+        public void ChangeNodeTextTwice()
+        {
+            IRootCauseCommand command =new ChangeNodeTextCommand(new NullDb(), problem, "New Text", true);
+            command.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandNotExecutedException))]
+        public void ChangeNodeTextUndoBeforeExecute()
+        {
+            IRootCauseCommand command = new ChangeNodeTextCommand(new NullDb(), problem, "New Text");
+            command.Undo();
         }
 
         [TestMethod]
@@ -120,9 +148,29 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             command.Execute();
             Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
             Assert.AreEqual(2, dict["Node 2.2"].CountParentNodes());
+            Assert.AreEqual(true, command.Executed);
             command.Undo();
             Assert.AreEqual(1, dict["Node 2.2"].CountParentNodes());
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+            Assert.AreEqual(false, command.Executed);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandAlreadyExecutedException))]
+        public void AddLinkTwice()
+        {
+            var dict = BuildTestTree();
+            AddLinkCommand command = new AddLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"],true);
+            command.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandNotExecutedException))]
+        public void AddLinkUndoBeforeExecute()
+        {
+            var dict = BuildTestTree();
+            AddLinkCommand command = new AddLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"]);
+            command.Undo();
         }
 
         [TestMethod]
@@ -144,9 +192,31 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             command.Execute();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
             Assert.AreEqual(1, dict["Node 2.2"].CountParentNodes());
+            Assert.AreEqual(true, command.Executed);
             command.Undo();
             Assert.AreEqual("Problem,Node 1,Node 1.1,Node 2.2,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
             Assert.AreEqual(2, dict["Node 2.2"].CountParentNodes());
+            Assert.AreEqual(false, command.Executed);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandAlreadyExecutedException))]
+        public void RemoveLinkTwice()
+        {
+            var dict = BuildTestTree();
+            new AddLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"], true);
+            RemoveLinkCommand command = new RemoveLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"],true);
+            command.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandNotExecutedException))]
+        public void RemoveLinkUndoBeforeExecute()
+        {
+            var dict = BuildTestTree();
+            new AddLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"], true);
+            RemoveLinkCommand command = new RemoveLinkCommand(new NullDb(), dict["Node 1.1"], dict["Node 2.2"]);
+            command.Undo();
         }
 
         [TestMethod]
@@ -200,9 +270,29 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             {
                 Assert.IsTrue("Node 1.1,Node 1.2,Node 2".Contains(node.Text));
             }
+            Assert.AreEqual(true, command.Executed);
             
             command.Undo();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+            Assert.AreEqual(false, command.Executed);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandAlreadyExecutedException))]
+        public void RemoveNodeTwice()
+        {
+            var dict = BuildTestTree();
+            IRootCauseCommand command = new RemoveNodeCommand(new NullDb(), dict["Node 1"],true);
+            command.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandNotExecutedException))]
+        public void RemoveNodeUndoBeforeExecute()
+        {
+            var dict = BuildTestTree();
+            IRootCauseCommand command = new RemoveNodeCommand(new NullDb(), dict["Node 1"]);
+            command.Undo();
         }
 
         [TestMethod]
@@ -222,8 +312,28 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
             command.Execute();
             Assert.AreEqual("Problem,Node 2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
+            Assert.AreEqual(true, command.Executed);
             command.Undo();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+            Assert.AreEqual(false, command.Executed);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandAlreadyExecutedException))]
+        public void RemoveNodeChainTwice()
+        {
+            var dict = BuildTestTree();
+            var command = new RemoveNodeChainCommand(new NullDb(), dict["Node 1"],true);
+            command.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandNotExecutedException))]
+        public void RemoveNodeChainUndoBeforeExecute()
+        {
+            var dict = BuildTestTree();
+            var command = new RemoveNodeChainCommand(new NullDb(), dict["Node 1"]);
+            command.Undo();
         }
 
         [TestMethod]
@@ -243,8 +353,28 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
             command.Execute();
             Assert.AreEqual("Problem,Node 2,Node 1,Node 1.1,Node 1.2,Node 2.1,Node 2.1.1,Node 2.2", StringifyTree(dict["Problem"]));
+            Assert.AreEqual(true, command.Executed);
             command.Undo();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
+            Assert.AreEqual(false, command.Executed);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandAlreadyExecutedException))]
+        public void MoveNodeChainTwice()
+        {
+            var dict = BuildTestTree();
+            var command = new MoveNodeCommand(new NullDb(), dict["Node 1"], dict["Node 2"],true);
+            command.Execute();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandNotExecutedException))]
+        public void MoveNodeChainUndoBeforeExecute()
+        {
+            var dict = BuildTestTree();
+            var command = new MoveNodeCommand(new NullDb(), dict["Node 1"], dict["Node 2"]);
+            command.Undo();
         }
 
         [TestMethod]
