@@ -412,6 +412,72 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             Assert.AreEqual(3, dict["Node 2"].CountNodes());
         }
 
+        [TestMethod]
+        public void NewProblemContainer()
+        {
+            IRootCauseDb db = new NullDb();
+            var command = new CreateProblemContainer(db, "This is a problem");
+            command.Execute();
+            ProblemContainer container = command.Container;
+            Node problem = container.InitialProblem;
+            Assert.AreEqual("This is a problem", problem.Text);
+            Assert.AreEqual(0, container.CountUndoActions());
+            Assert.AreEqual(0, container.CountRedoActions());
+
+            IRootCauseCommand add = new AddNodeCommand(db, problem, "Cause 1");
+            container.AddAction(add);
+            Assert.AreEqual(true, add.Executed);
+            Assert.AreEqual(1, container.CountUndoActions());
+            Assert.AreEqual(0, container.CountRedoActions());
+            Assert.AreEqual(1,problem.CountNodes());
+
+            add = new AddNodeCommand(db, problem, "Cause 2",true);
+            container.AddAction(add);
+            Assert.AreEqual(true, add.Executed);
+            Assert.AreEqual(2, container.CountUndoActions());
+            Assert.AreEqual(0, container.CountRedoActions());
+            Assert.AreEqual(2, problem.CountNodes());
+
+            container.Undo();
+            Assert.AreEqual(1, container.CountUndoActions());
+            Assert.AreEqual(1, container.CountRedoActions());
+            Assert.AreEqual(1, problem.CountNodes());
+
+            container.Redo();
+            Assert.AreEqual(2, container.CountUndoActions());
+            Assert.AreEqual(0, container.CountRedoActions());
+            Assert.AreEqual(2, problem.CountNodes());
+
+            container.Undo();
+            add = new AddNodeCommand(db, problem, "Cause 3", true);
+            container.AddAction(add);
+            Assert.AreEqual(2, container.CountUndoActions());
+            Assert.AreEqual(0, container.CountRedoActions());
+            Assert.AreEqual(2, problem.CountNodes());
+        }
+
+        [TestMethod]
+        public void CreateContainerImmediately()
+        {
+            var command = new CreateProblemContainer(new NullDb(), "This is a problem",true);
+            Assert.AreEqual(true, command.Executed);
+        }
+
+        [TestMethod]
+        public void ContainerUndoWithNoActions()
+        {
+            var container = new CreateProblemContainer(new NullDb(), "This is a problem", true).Container;
+            container.Undo();
+        }
+
+        [TestMethod]
+        public void ContainerRedoWithNoActions()
+        {
+            var container = new CreateProblemContainer(new NullDb(), "This is a problem", true).Container;
+            container.Redo();
+        }
+
+
         /* This method builds a complex tree for some of the link and removal command testing.
          * The structure of the tree is as follows:
          * Problem

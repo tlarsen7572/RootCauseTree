@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AddLinkCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\ChangeNodeTextCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\CommandExceptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\CreateProblemContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\IRootCauseCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MoveNodeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\RemoveLinkCommand.cs" />
@@ -21,9 +22,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\RemoveNodeCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IRootCauseDb.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Node.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProblemContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NodeFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NullDb.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Problem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SequentialGuid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SqliteDb.cs" />
   </ItemGroup>
 </Project>
