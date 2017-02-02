@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using com.PorcupineSupernova.RootCauseTreeCore;
 using System.Data.SQLite;
+using System.Collections.Generic;
 
 namespace com.PorcupineSupernova.RootCauseTreeTests
 {
@@ -19,10 +20,14 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         [TestMethod]
         public void TestSqliteDbInterface()
         {
-            //Run tests
+            //Run tests sequentially
+            //These tests are run sequentially because they will be using the same disk file
+            //The tests are not interdependent on each other; the disk file is overwritten with each new test
             TestCreateNewFile();
             TestCreateProblemStatement();
             TestCreateNewNode();
+            TestChangeNodeText();
+            TestAddLink();
         }
 
         //TESTS
@@ -98,12 +103,70 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             CleanUpDbObjects(conn, command, reader);
         }
 
+        private void TestChangeNodeText()
+        {
+            SQLiteConnection conn = CreateNewDbAndOpen("Tester.rootcause");
+
+            var problem = NodeFactory.CreateProblem("Problem", SequentialId.NewId());
+            SqliteDb.GetInstance().InsertTopLevel(problem);
+            SqliteDb.GetInstance().ChangeNodeText(problem, "This is my problem");
+
+            string sql = $"SELECT * FROM nodes WHERE nodeid = '{problem.NodeId}';";
+            var command = new SQLiteCommand(sql, conn);
+            SQLiteDataReader reader = command.ExecuteReader();
+            reader.Read();
+            Assert.AreEqual("This is my problem", reader["nodetext"]);
+
+            CleanUpDbObjects(conn, command, reader);
+        }
+
+        private void TestAddLink()
+        {
+            SQLiteConnection conn = CreateNewDbAndOpen("Tester.rootcause");
+
+            var problem = NodeFactory.CreateProblem("Problem", SequentialId.NewId());
+            var node1 = NodeFactory.CreateCause("Node 1", SequentialId.NewId());
+            var node2 = NodeFactory.CreateCause("Node 2", SequentialId.NewId());
+            SqliteDb.GetInstance().InsertTopLevel(problem);
+            SqliteDb.GetInstance().AddNode(problem, node1);
+            SqliteDb.GetInstance().AddNode(node1, node2);
+            SqliteDb.GetInstance().AddLink(problem, node2);
+
+            string sql = $"SELECT * FROM hierarchy;";
+            var command = new SQLiteCommand(sql, conn);
+            SQLiteDataReader reader = command.ExecuteReader();
+            var tests = new Dictionary<string, bool>()
+            {
+                { "Problem links to Node 1",false },
+                { "Problem links to Node 2",false },
+                { "Node 1 links to Node 2", false }
+            };
+
+            int links = 0;
+            while (reader.Read())
+            {
+                if (reader["parentid"].ToString().Equals(problem.NodeId.ToString()) && reader["childid"].ToString().Equals(node1.NodeId.ToString())) { tests["Problem links to Node 1"] = true; }
+                if (reader["parentid"].ToString().Equals(problem.NodeId.ToString()) && reader["childid"].ToString().Equals(node2.NodeId.ToString())) { tests["Problem links to Node 2"] = true; }
+                if (reader["parentid"].ToString().Equals(node1.NodeId.ToString()) && reader["childid"].ToString().Equals(node2.NodeId.ToString())) { tests["Node 1 links to Node 2"] = true; }
+                links++;
+            }
+
+            if (tests.ContainsValue(false))
+            {
+                Assert.Fail("One or more expected records were not returned from the database.");
+                foreach (var item in tests)
+                {
+                    System.Diagnostics.Debug.WriteLine($"{item.Key}: {item.Value.ToString()}");
+                }
+            }
+            Assert.AreEqual(3, links);
+        }
+
         //UTILITIES
         private SQLiteConnection CreateNewDbAndOpen(string fileName)
         {
-            SqliteDb db = SqliteDb.GetInstance();
             string filePath = GetPath(fileName);
-            bool result = db.CreateNewFile(filePath);
+            SqliteDb.GetInstance().CreateNewFile(filePath);
             string connStr = string.Concat("Data Source=", filePath, ";Version=3;");
             SQLiteConnection conn = new SQLiteConnection(connStr);
             conn.Open();

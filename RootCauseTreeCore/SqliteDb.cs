@@ -42,7 +42,16 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public bool AddLink(Node startNode, Node endNode)
         {
-            throw new NotImplementedException();
+            var conn = CreateConnection();
+            string sql = @"INSERT INTO hierarchy (parentid,childid) VALUES ($parent,$child);";
+            var command = new SQLiteCommand(sql, conn);
+            command.Parameters.AddWithValue("$parent", startNode.NodeId);
+            command.Parameters.AddWithValue("$child", endNode.NodeId);
+            conn.Open();
+            int records = command.ExecuteNonQuery();
+            CleanUp(conn, command);
+
+            return records == 1 ? true : false;
         }
 
         public bool RemoveLink(Node startNode, Node endNode)
@@ -52,7 +61,16 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public bool ChangeNodeText(Node node, string newText)
         {
-            throw new NotImplementedException();
+            var conn = CreateConnection();
+            string sql = @"UPDATE nodes SET nodetext = $newtext WHERE nodeid = $nodeid;";
+            var command = new SQLiteCommand(sql, conn);
+            command.Parameters.AddWithValue("$newtext", newText);
+            command.Parameters.AddWithValue("$nodeid", node.NodeId);
+            conn.Open();
+            int records = command.ExecuteNonQuery();
+            CleanUp(conn, command);
+
+            return records == 1 ? true : false;
         }
 
         public bool AddNode(Node startNode, Node newNode)

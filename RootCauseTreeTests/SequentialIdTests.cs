@@ -5,7 +5,7 @@ using com.PorcupineSupernova.RootCauseTreeCore;
 namespace com.PorcupineSupernova.RootCauseTreeTests
 {
     [TestClass]
-    public class SequentialGuidTests
+    public class SequentialIdTests
     {
         [TestMethod]
         public void TestSequentiality()
