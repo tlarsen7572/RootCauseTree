@@ -34,7 +34,7 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         public void Undo()
         {
             if (!Executed) { throw new CommandNotExecutedException(); }
-            if (!_Db.AddLink(_StartNode, _EndNode)) { throw new CommandFailedDbWriteException(); }
+            if (!_Db.UndoRemoveLink(_StartNode, _EndNode)) { throw new CommandFailedDbWriteException(); }
             _StartNode.AddNode(_EndNode);
             _EndNode.AddParent(_StartNode);
             Executed = false;

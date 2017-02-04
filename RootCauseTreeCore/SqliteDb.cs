@@ -27,64 +27,69 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public bool InsertTopLevel(Node node)
         {
-            var conn = CreateConnection();
-            string sql =    @"INSERT INTO toplevel (nodeid) VALUES ($newid);
-                            INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);";
-            var command = new SQLiteCommand(sql, conn);
-            command.Parameters.AddWithValue("$newid", node.NodeId);
-            command.Parameters.AddWithValue("$newtext", node.Text);
-            conn.Open();
-            int records = command.ExecuteNonQuery();
-            CleanUp(conn, command);
+            SQLiteParameter[] parms = new SQLiteParameter[]
+            {
+                new SQLiteParameter("$newid", node.NodeId),
+                new SQLiteParameter("$newtext", node.Text),
+            };
+            string sql =
+@"INSERT INTO toplevel (nodeid) VALUES ($newid);
+INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);";
+
+            int records = ExecuteQuery(sql ,parms);
 
             return records == 1 ? true : false;
         }
 
         public bool AddLink(Node startNode, Node endNode)
         {
-            var conn = CreateConnection();
-            string sql = @"INSERT INTO hierarchy (parentid,childid) VALUES ($parent,$child);";
-            var command = new SQLiteCommand(sql, conn);
-            command.Parameters.AddWithValue("$parent", startNode.NodeId);
-            command.Parameters.AddWithValue("$child", endNode.NodeId);
-            conn.Open();
-            int records = command.ExecuteNonQuery();
-            CleanUp(conn, command);
+            SQLiteParameter[] parms = new SQLiteParameter[]
+            {
+                new SQLiteParameter("$parent", startNode.NodeId),
+                new SQLiteParameter("$child", endNode.NodeId),
+            };
+            int records = ExecuteQuery(@"INSERT INTO hierarchy (parentid,childid) VALUES ($parent,$child);", parms);
 
             return records == 1 ? true : false;
         }
 
         public bool RemoveLink(Node startNode, Node endNode)
         {
-            throw new NotImplementedException();
+            SQLiteParameter[] parms = new SQLiteParameter[]
+            {
+                new SQLiteParameter("$parentnode", startNode.NodeId),
+                new SQLiteParameter("$childnode", endNode.NodeId),
+            };
+            int records = ExecuteQuery(@"DELETE FROM hierarchy WHERE parentid = $parentnode AND childid = $childnode;", parms,true);
+
+            return records == 1 ? true : false;
         }
 
         public bool ChangeNodeText(Node node, string newText)
         {
-            var conn = CreateConnection();
-            string sql = @"UPDATE nodes SET nodetext = $newtext WHERE nodeid = $nodeid;";
-            var command = new SQLiteCommand(sql, conn);
-            command.Parameters.AddWithValue("$newtext", newText);
-            command.Parameters.AddWithValue("$nodeid", node.NodeId);
-            conn.Open();
-            int records = command.ExecuteNonQuery();
-            CleanUp(conn, command);
+            SQLiteParameter[] parms = new SQLiteParameter[]
+            {
+                new SQLiteParameter("$newtext", newText),
+                new SQLiteParameter("$nodeid", node.NodeId),
+            };
+            int records = ExecuteQuery(@"UPDATE nodes SET nodetext = $newtext WHERE nodeid = $nodeid;", parms);
 
             return records == 1 ? true : false;
         }
 
         public bool AddNode(Node startNode, Node newNode)
         {
-            var conn = CreateConnection();
-            string sql =    @"INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);
-                            INSERT INTO hierarchy (parentid,childid) VALUES ($parentid,$newid);";
-            var command = new SQLiteCommand(sql, conn);
-            command.Parameters.AddWithValue("$newid", newNode.NodeId);
-            command.Parameters.AddWithValue("$newtext", newNode.Text);
-            command.Parameters.AddWithValue("$parentid", startNode.NodeId);
-            conn.Open();
-            int records = command.ExecuteNonQuery();
-            CleanUp(conn, command);
+            SQLiteParameter[] parms = new SQLiteParameter[]
+            {
+                new SQLiteParameter("$newid", newNode.NodeId),
+                new SQLiteParameter("$newtext", newNode.Text),
+                new SQLiteParameter("$parentid", startNode.NodeId),
+            };
+            string sql =
+@"INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);
+INSERT INTO hierarchy (parentid,childid) VALUES ($parentid,$newid);";
+
+            int records = ExecuteQuery(sql, parms);
 
             return records == 1 ? true : false;
         }
@@ -119,6 +124,37 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             throw new NotImplementedException();
         }
 
+        public bool UndoRemoveLink(Node startNode,Node endNode)
+        {
+            var conn = CreateConnection();
+            conn.Open();
+            int records = RecurseUndoRemoveLinks(conn, startNode, endNode);
+            conn.Close();
+            conn.Dispose();
+
+            return records > 0 ? true : false;
+        }
+
+        private int RecurseUndoRemoveLinks(SQLiteConnection conn, Node startNode, Node endNode)
+        {
+            SQLiteParameter[] parms = new SQLiteParameter[]
+            {
+                new SQLiteParameter("$parentid", startNode.NodeId),
+                new SQLiteParameter("$childid", endNode.NodeId),
+                new SQLiteParameter("$childtext", endNode.Text),
+            };
+            string sql =
+@"INSERT OR IGNORE INTO nodes (nodeid,nodetext) VALUES ($childid,$childtext);
+INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($parentid,$childid);";
+            int records = ExecuteQuery(conn, sql, parms);
+
+            foreach (var child in endNode.Nodes)
+            {
+                records = records + RecurseUndoRemoveLinks(conn, endNode, child);
+            }
+            return records;
+        }
+
         public bool RemoveTopLevel(Node node)
         {
             throw new NotImplementedException();
@@ -128,22 +164,66 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         {
             SQLiteConnection.CreateFile(CurrentFile);
             var conn = CreateConnection();
-            string sql = @"DROP TABLE IF EXISTS toplevel;
-                            DROP TABLE IF EXISTS nodes;
-                            DROP TABLE IF EXISTS hierarchy;
-                            CREATE TABLE toplevel (nodeid BIGINT, PRIMARY KEY (nodeid)) WITHOUT ROWID;
-                            CREATE TABLE nodes (nodeid BIGINT, nodetext text, PRIMARY KEY (nodeid)) WITHOUT ROWID;
-                            CREATE TABLE hierarchy (parentid BIGINT, childid BIGINT, PRIMARY KEY (parentid, childid)) WITHOUT ROWID;";
+            string sql = 
+@"DROP TABLE IF EXISTS toplevel;
+DROP TABLE IF EXISTS nodes;
+DROP TABLE IF EXISTS hierarchy;
+CREATE TABLE toplevel (nodeid BIGINT, PRIMARY KEY (nodeid)) WITHOUT ROWID;
+CREATE TABLE nodes (nodeid BIGINT, nodetext text, PRIMARY KEY (nodeid)) WITHOUT ROWID;
+CREATE TABLE hierarchy (parentid BIGINT, childid BIGINT, PRIMARY KEY (parentid, childid)) WITHOUT ROWID;";
+
             var command = new SQLiteCommand(sql, conn);
             conn.Open();
             command.ExecuteNonQuery();
             CleanUp(conn, command);
         }
 
+        private int ExecuteQuery(SQLiteConnection conn, string sql, SQLiteParameter[] parms, bool doOrphanCleanup = false)
+        {
+            var command = new SQLiteCommand(sql, conn);
+            command.Parameters.AddRange(parms);
+            int records = command.ExecuteNonQuery();
+            if (doOrphanCleanup) { CleanUpOrphans(conn); }
+            command.Dispose();
+            return records;
+        }
+
+        private int ExecuteQuery(string sql,SQLiteParameter[] parms,bool doOrphanCleanup = false)
+        {
+            var conn = CreateConnection();
+            conn.Open();
+            int records = ExecuteQuery(conn,sql, parms, doOrphanCleanup);
+            conn.Close();
+            conn.Dispose();
+            return records;
+        }
+
         private SQLiteConnection CreateConnection()
         {
             string connStr = string.Concat("Data Source=", CurrentFile, ";Version=3;");
             return new SQLiteConnection(connStr);
+        }
+
+        private void CleanUpOrphans(SQLiteConnection conn)
+        {
+            string sql = 
+@"DROP TABLE IF EXISTS t_orphans;
+CREATE TEMPORARY TABLE t_orphans AS
+SELECT a.nodeid FROM nodes a
+LEFT JOIN toplevel b ON a.nodeid = b.nodeid
+LEFT JOIN hierarchy c ON a.nodeid = c.childid
+WHERE b.nodeid IS NULL AND c.childid IS NULL;
+DELETE FROM nodes WHERE nodeid IN t_orphans;
+DELETE FROM hierarchy WHERE parentid IN t_orphans;";
+
+            SQLiteCommand command = new SQLiteCommand(sql, conn);
+            int deletedRecords;
+
+            do
+            {
+                deletedRecords = command.ExecuteNonQuery();
+            } while (deletedRecords > 0);
+            command.Dispose();
         }
 
         private void CleanUp(SQLiteConnection conn, SQLiteCommand command)

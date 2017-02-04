@@ -17,6 +17,7 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         bool UndoMoveNode(Node node, Node targetNode, IEnumerable<Node> oldParents);
         bool UndoRemoveNodeChain(Node removeNode, IEnumerable<Node> oldParents);
         bool UndoRemoveNode(Node removeNode, IEnumerable<Node> oldParents,IEnumerable<Node> oldNodes);
+        bool UndoRemoveLink(Node startNode, Node endNode);
         bool RemoveTopLevel(Node node);
     }
 }

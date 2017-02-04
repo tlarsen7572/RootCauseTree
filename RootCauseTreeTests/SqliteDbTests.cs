@@ -28,6 +28,9 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             TestCreateNewNode();
             TestChangeNodeText();
             TestAddLink();
+            TestRemoveLink();
+            TestRemoveFinalLink();
+            TestUndoRemoveFinalLink();
         }
 
         //TESTS
@@ -132,35 +135,100 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             SqliteDb.GetInstance().AddNode(node1, node2);
             SqliteDb.GetInstance().AddLink(problem, node2);
 
-            string sql = $"SELECT * FROM hierarchy;";
-            var command = new SQLiteCommand(sql, conn);
-            SQLiteDataReader reader = command.ExecuteReader();
-            var tests = new Dictionary<string, bool>()
+            var expectedLinks = new Node[3,2]
             {
-                { "Problem links to Node 1",false },
-                { "Problem links to Node 2",false },
-                { "Node 1 links to Node 2", false }
+                {problem,node1 },
+                {problem,node2 },
+                {node1,node2 }
             };
-
-            int links = 0;
-            while (reader.Read())
-            {
-                if (reader["parentid"].ToString().Equals(problem.NodeId.ToString()) && reader["childid"].ToString().Equals(node1.NodeId.ToString())) { tests["Problem links to Node 1"] = true; }
-                if (reader["parentid"].ToString().Equals(problem.NodeId.ToString()) && reader["childid"].ToString().Equals(node2.NodeId.ToString())) { tests["Problem links to Node 2"] = true; }
-                if (reader["parentid"].ToString().Equals(node1.NodeId.ToString()) && reader["childid"].ToString().Equals(node2.NodeId.ToString())) { tests["Node 1 links to Node 2"] = true; }
-                links++;
-            }
-
-            if (tests.ContainsValue(false))
-            {
-                Assert.Fail("One or more expected records were not returned from the database.");
-                foreach (var item in tests)
-                {
-                    System.Diagnostics.Debug.WriteLine($"{item.Key}: {item.Value.ToString()}");
-                }
-            }
-            Assert.AreEqual(3, links);
+            TestHierarchy(conn, expectedLinks);
+            CleanUpConnection(conn);
         }
+
+        private void TestRemoveLink()
+        {
+            SQLiteConnection conn = CreateNewDbAndOpen("Tester.rootcause");
+
+            var problem = NodeFactory.CreateProblem("Problem", SequentialId.NewId());
+            var node1 = NodeFactory.CreateCause("Node 1", SequentialId.NewId());
+            var node2 = NodeFactory.CreateCause("Node 2", SequentialId.NewId());
+            SqliteDb.GetInstance().InsertTopLevel(problem);
+            SqliteDb.GetInstance().AddNode(problem, node1);
+            SqliteDb.GetInstance().AddNode(node1, node2);
+            SqliteDb.GetInstance().AddLink(problem, node2);
+            SqliteDb.GetInstance().RemoveLink(problem, node2);
+
+            var expectedLinks = new Node[2, 2]
+            {
+                {problem,node1 },
+                {node1,node2 }
+            };
+            TestHierarchy(conn, expectedLinks);
+            CleanUpConnection(conn);
+        }
+
+        private void TestRemoveFinalLink()
+        {
+            SQLiteConnection conn = CreateNewDbAndOpen("Tester.rootcause");
+            Dictionary<string,Node> nodes = CreateComplexModelForTest();
+            SqliteDb.GetInstance().RemoveLink(nodes["Problem"], nodes["Node 1.2"]);
+
+            var expectedLinks = new Node[3, 2]
+            {
+                {nodes["Problem"],nodes["Node 1.1"] },
+                {nodes["Node 1.1"],nodes["Node 2.1"] },
+                {nodes["Node 2.1"], nodes["Node 3.1"] }
+            };
+            TestHierarchy(conn, expectedLinks);
+
+            var expectedNodes = new Node[4]
+            {
+                nodes["Problem"],
+                nodes["Node 1.1"],
+                nodes["Node 2.1"],
+                nodes["Node 3.1"]
+            };
+            TestNodes(conn,expectedNodes);
+            CleanUpConnection(conn);
+        }
+
+        private void TestUndoRemoveFinalLink()
+        {
+            SQLiteConnection conn = CreateNewDbAndOpen("Tester.rootcause");
+            Dictionary<string, Node> nodes = CreateComplexModelForTest();
+            SqliteDb.GetInstance().RemoveLink(nodes["Problem"], nodes["Node 1.2"]);
+            SqliteDb.GetInstance().UndoRemoveLink(nodes["Problem"], nodes["Node 1.2"]);
+
+            var expectedLinks = new Node[10, 2]
+            {
+                {nodes["Problem"],nodes["Node 1.1"] },
+                {nodes["Problem"],nodes["Node 1.2"] },
+                {nodes["Node 1.1"],nodes["Node 2.1"] },
+                {nodes["Node 1.2"],nodes["Node 2.1"] },
+                {nodes["Node 1.2"],nodes["Node 2.2"] },
+                {nodes["Node 1.2"],nodes["Node 2.3"] },
+                {nodes["Node 2.1"],nodes["Node 3.1"] },
+                {nodes["Node 2.2"],nodes["Node 3.1"] },
+                {nodes["Node 2.2"],nodes["Node 3.2"] },
+                {nodes["Node 2.3"], nodes["Node 3.2"] }
+            };
+            TestHierarchy(conn, expectedLinks);
+
+            var expectedNodes = new Node[8]
+            {
+                nodes["Problem"],
+                nodes["Node 1.1"],
+                nodes["Node 1.2"],
+                nodes["Node 2.1"],
+                nodes["Node 2.2"],
+                nodes["Node 2.3"],
+                nodes["Node 3.1"],
+                nodes["Node 3.2"]
+            };
+            TestNodes(conn, expectedNodes);
+            CleanUpConnection(conn);
+        }
+
 
         //UTILITIES
         private SQLiteConnection CreateNewDbAndOpen(string fileName)
@@ -183,12 +251,157 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             return string.Concat(System.IO.Directory.GetCurrentDirectory(), @"\", fileName);
         }
 
+        private void CleanUpConnection(SQLiteConnection conn)
+        {
+            conn.Close();
+            conn.Dispose();
+        }
+
         private void CleanUpDbObjects(SQLiteConnection conn, SQLiteCommand command,SQLiteDataReader reader)
         {
             reader.Close();
             command.Dispose();
-            conn.Close();
-            conn.Dispose();
+            CleanUpConnection(conn);
+        }
+
+        private void CheckTests(Dictionary<string,bool> tests)
+        {
+            if (tests.ContainsValue(false))
+            {
+                foreach (var item in tests)
+                {
+                    System.Diagnostics.Debug.WriteLine($"{item.Key}: {item.Value.ToString()}");
+                }
+                Assert.Fail("One or more expected records were not returned from the database.");
+            }
+        }
+
+        private void TestNodes(SQLiteConnection conn, Node[] expectedNodes)
+        {
+            int expectedRows = expectedNodes.Length;
+            var tests = new Dictionary<string, bool>();
+            for (int i = 0; i < expectedRows; i++)
+            {
+                tests.Add(expectedNodes[i].Text, false);
+            }
+
+            string sql = $"SELECT * FROM nodes;";
+            var command = new SQLiteCommand(sql, conn);
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            int rows = 0;
+            while (reader.Read())
+            {
+                for (int i = 0; i < expectedRows; i++)
+                {
+                    if (reader["nodetext"].Equals(expectedNodes[i].Text)) { tests[expectedNodes[i].Text] = true; }
+                }
+                rows++;
+            }
+            reader.Close();
+            command.Dispose();
+
+            CheckTests(tests);
+            Assert.AreEqual(expectedRows, rows);
+        }
+
+        private void TestHierarchy(SQLiteConnection conn, Node[,] expectedLinks)
+        {
+            int expectedRows = expectedLinks.GetLength(0);
+            var tests = new Dictionary<string, bool>();
+            for (int i = 0; i < expectedRows; i++)
+            {
+                tests.Add($"{expectedLinks[i,0].Text} links to {expectedLinks[i,1].Text}", false);
+            }
+
+            string sql = $"SELECT * FROM hierarchy;";
+            var command = new SQLiteCommand(sql, conn);
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            int links = 0;
+            while (reader.Read())
+            {
+                for (int i = 0; i < expectedRows; i++)
+                {
+                    CheckHierarchyExists(reader, expectedLinks[i,0], expectedLinks[i,1],tests);
+                }
+                links++;
+            }
+            reader.Close();
+            command.Dispose();
+
+            CheckTests(tests);
+            Assert.AreEqual(expectedRows, links);
+        }
+
+        private void CheckHierarchyExists(SQLiteDataReader reader,Node parent,Node child,Dictionary<string,bool> tests)
+        {
+            if (reader["parentid"].ToString().Equals(parent.NodeId.ToString()) && reader["childid"].ToString().Equals(child.NodeId.ToString()))
+            {
+                tests[$"{parent.Text} links to {child.Text}"] = true;
+            }
+        }
+
+        /*This is the model that is created by CreateComplexModelForText
+         * 
+         *                  Problem
+         *                     |
+         *               -------------
+         *               |           |
+         *            Node 1.1    Node 1.2
+         *               |           |
+         *               |      -------------------------
+         *               |      |           |           |
+         *               |---Node 2.1    Node 2.2    Node 2.3
+         *                      |           |           |
+         *                      |      -------------    |
+         *                      |      |           |    |
+         *                      |---Node 3.1    Node 3.2-
+        */
+        private Dictionary<string,Node> CreateComplexModelForTest()
+        {
+            Node problem = NodeFactory.CreateProblem("Problem",SequentialId.NewId());
+            Node node1_1 = NodeFactory.CreateCause("Node 1.1", SequentialId.NewId());
+            Node node1_2 = NodeFactory.CreateCause("Node 1.2", SequentialId.NewId());
+            Node node2_1 = NodeFactory.CreateCause("Node 2.1", SequentialId.NewId());
+            Node node2_2 = NodeFactory.CreateCause("Node 2.2", SequentialId.NewId());
+            Node node2_3 = NodeFactory.CreateCause("Node 2.3", SequentialId.NewId());
+            Node node3_1 = NodeFactory.CreateCause("Node 3.1", SequentialId.NewId());
+            Node node3_2 = NodeFactory.CreateCause("Node 3.2", SequentialId.NewId());
+
+            problem.AddNode(node1_1);
+            problem.AddNode(node1_2);
+            node1_1.AddNode(node2_1);
+            node1_2.AddNode(node2_1);
+            node1_2.AddNode(node2_2);
+            node1_2.AddNode(node2_3);
+            node2_1.AddNode(node3_1);
+            node2_2.AddNode(node3_1);
+            node2_2.AddNode(node3_2);
+            node2_3.AddNode(node3_2);
+
+            SqliteDb.GetInstance().InsertTopLevel(problem);
+            SqliteDb.GetInstance().AddNode(problem, node1_1);
+            SqliteDb.GetInstance().AddNode(problem, node1_2);
+            SqliteDb.GetInstance().AddNode(node1_2, node2_1);
+            SqliteDb.GetInstance().AddNode(node1_2, node2_2);
+            SqliteDb.GetInstance().AddNode(node1_2, node2_3);
+            SqliteDb.GetInstance().AddNode(node2_2, node3_1);
+            SqliteDb.GetInstance().AddNode(node2_2, node3_2);
+            SqliteDb.GetInstance().AddLink(node1_1, node2_1);
+            SqliteDb.GetInstance().AddLink(node2_1, node3_1);
+            SqliteDb.GetInstance().AddLink(node2_3, node3_2);
+            return new Dictionary<string, Node>()
+            {
+                {problem.Text,problem },
+                {node1_1.Text,node1_1 },
+                {node1_2.Text,node1_2 },
+                {node2_1.Text,node2_1 },
+                {node2_2.Text,node2_2 },
+                {node2_3.Text,node2_3 },
+                {node3_1.Text,node3_1 },
+                {node3_2.Text,node3_2 }
+            };
         }
     }
 }
