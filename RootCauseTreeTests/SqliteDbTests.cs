@@ -396,37 +396,22 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         */
         private Dictionary<string,Node> CreateComplexModelForTest()
         {
+            var db = SqliteDb.GetInstance();
             Node problem = NodeFactory.CreateProblem("Problem",SequentialId.NewId());
-            Node node1_1 = NodeFactory.CreateCause("Node 1.1", SequentialId.NewId());
-            Node node1_2 = NodeFactory.CreateCause("Node 1.2", SequentialId.NewId());
-            Node node2_1 = NodeFactory.CreateCause("Node 2.1", SequentialId.NewId());
-            Node node2_2 = NodeFactory.CreateCause("Node 2.2", SequentialId.NewId());
-            Node node2_3 = NodeFactory.CreateCause("Node 2.3", SequentialId.NewId());
-            Node node3_1 = NodeFactory.CreateCause("Node 3.1", SequentialId.NewId());
-            Node node3_2 = NodeFactory.CreateCause("Node 3.2", SequentialId.NewId());
+            db.InsertTopLevel(problem);
 
-            problem.AddChild(node1_1);
-            problem.AddChild(node1_2);
-            node1_1.AddChild(node2_1);
-            node1_2.AddChild(node2_1);
-            node1_2.AddChild(node2_2);
-            node1_2.AddChild(node2_3);
-            node2_1.AddChild(node3_1);
-            node2_2.AddChild(node3_1);
-            node2_2.AddChild(node3_2);
-            node2_3.AddChild(node3_2);
+            Node node1_1 = new AddNodeCommand(db, problem, "Node 1.1", true).NewNode;
+            Node node1_2 = new AddNodeCommand(db, problem, "Node 1.2", true).NewNode;
+            Node node2_1 = new AddNodeCommand(db, node1_2, "Node 2.1", true).NewNode;
+            Node node2_2 = new AddNodeCommand(db, node1_2, "Node 2.2", true).NewNode;
+            Node node2_3 = new AddNodeCommand(db, node1_2, "Node 2.3", true).NewNode;
+            Node node3_1 = new AddNodeCommand(db, node2_2, "Node 3.1", true).NewNode;
+            Node node3_2 = new AddNodeCommand(db, node2_2, "Node 3.2", true).NewNode;
 
-            SqliteDb.GetInstance().InsertTopLevel(problem);
-            SqliteDb.GetInstance().AddNode(problem, node1_1);
-            SqliteDb.GetInstance().AddNode(problem, node1_2);
-            SqliteDb.GetInstance().AddNode(node1_2, node2_1);
-            SqliteDb.GetInstance().AddNode(node1_2, node2_2);
-            SqliteDb.GetInstance().AddNode(node1_2, node2_3);
-            SqliteDb.GetInstance().AddNode(node2_2, node3_1);
-            SqliteDb.GetInstance().AddNode(node2_2, node3_2);
-            SqliteDb.GetInstance().AddLink(node1_1, node2_1);
-            SqliteDb.GetInstance().AddLink(node2_1, node3_1);
-            SqliteDb.GetInstance().AddLink(node2_3, node3_2);
+            new AddLinkCommand(db, node1_1, node2_1, true);
+            new AddLinkCommand(db, node2_1, node3_1, true);
+            new AddLinkCommand(db, node2_3, node3_2, true);
+
             return new Dictionary<string, Node>()
             {
                 {problem.Text,problem },

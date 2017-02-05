@@ -100,12 +100,32 @@ INSERT INTO hierarchy (parentid,childid) VALUES ($parentid,$newid);";
             int records = ExecuteQuery(command,sql, parms);
             CommitAndCleanUp(command);
 
-            return records == 1 ? true : false;
+            return records == 2 ? true : false;
         }
 
         public bool RemoveNode(Node removeNode)
         {
-            throw new NotImplementedException();
+            var command = CreateNewCommand();
+            command.CommandText =
+@"DELETE FROM hierarchy WHERE parentid = $nodeid OR childid = $nodeid;
+DELETE FROM nodes WHERE nodeid = $nodeid;";
+            command.Parameters.AddWithValue("$nodeid", removeNode.NodeId);
+            int records = command.ExecuteNonQuery();
+
+            foreach (var parent in removeNode.ParentNodes)
+            {
+                foreach (var child in removeNode.ChildNodes)
+                {
+                    command.Parameters.Clear();
+                    command.CommandText = @"INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($parent,$child);";
+                    command.Parameters.AddWithValue("$parent", parent.NodeId);
+                    command.Parameters.AddWithValue("$child", child.NodeId);
+                    command.ExecuteNonQuery();
+                }
+            }
+            CommitAndCleanUp(command);
+
+            return records == 1 ? true : false;
         }
 
         public bool RemoveNodeChain(Node removeNode)
