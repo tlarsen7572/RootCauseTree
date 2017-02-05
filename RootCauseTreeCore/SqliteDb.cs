@@ -42,12 +42,12 @@ INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);";
             return records == 1 ? true : false;
         }
 
-        public bool AddLink(Node startNode, Node endNode)
+        public bool AddLink(Node parentNode, Node childNode)
         {
             SQLiteParameter[] parms = new SQLiteParameter[]
             {
-                new SQLiteParameter("$parent", startNode.NodeId),
-                new SQLiteParameter("$child", endNode.NodeId),
+                new SQLiteParameter("$parent", parentNode.NodeId),
+                new SQLiteParameter("$child", childNode.NodeId),
             };
             var command = CreateNewCommand();
             int records = ExecuteQuery(command,@"INSERT INTO hierarchy (parentid,childid) VALUES ($parent,$child);", parms);
@@ -56,12 +56,12 @@ INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);";
             return records == 1 ? true : false;
         }
 
-        public bool RemoveLink(Node startNode, Node endNode)
+        public bool RemoveLink(Node parentNode, Node childNode)
         {
             SQLiteParameter[] parms = new SQLiteParameter[]
             {
-                new SQLiteParameter("$parentnode", startNode.NodeId),
-                new SQLiteParameter("$childnode", endNode.NodeId),
+                new SQLiteParameter("$parentnode", parentNode.NodeId),
+                new SQLiteParameter("$childnode", childNode.NodeId),
             };
             var command = CreateNewCommand();
             int records = ExecuteQuery(command,@"DELETE FROM hierarchy WHERE parentid = $parentnode AND childid = $childnode;", parms,true);
@@ -84,13 +84,13 @@ INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);";
             return records == 1 ? true : false;
         }
 
-        public bool AddNode(Node startNode, Node newNode)
+        public bool AddNode(Node parentNode, Node newNode)
         {
             SQLiteParameter[] parms = new SQLiteParameter[]
             {
                 new SQLiteParameter("$newid", newNode.NodeId),
                 new SQLiteParameter("$newtext", newNode.Text),
-                new SQLiteParameter("$parentid", startNode.NodeId),
+                new SQLiteParameter("$parentid", parentNode.NodeId),
             };
             string sql =
 @"INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);
@@ -113,12 +113,12 @@ INSERT INTO hierarchy (parentid,childid) VALUES ($parentid,$newid);";
             throw new NotImplementedException();
         }
 
-        public bool MoveNode(Node node, Node targetNode)
+        public bool MoveNode(Node movingNode, Node targetNode)
         {
             throw new NotImplementedException();
         }
 
-        public bool UndoMoveNode(Node node, Node targetNode, IEnumerable<Node> oldParents)
+        public bool UndoMoveNode(Node movingNode, Node targetNode, IEnumerable<Node> oldParents)
         {
             throw new NotImplementedException();
         }
@@ -128,27 +128,27 @@ INSERT INTO hierarchy (parentid,childid) VALUES ($parentid,$newid);";
             throw new NotImplementedException();
         }
 
-        public bool UndoRemoveNode(Node removeNode, IEnumerable<Node> oldParents, IEnumerable<Node> oldNodes)
+        public bool UndoRemoveNode(Node removeNode, IEnumerable<Node> oldParents, IEnumerable<Node> oldNodes,Dictionary<Node,Node> parentChildLinks)
         {
             throw new NotImplementedException();
         }
 
-        public bool UndoRemoveLink(Node startNode,Node endNode)
+        public bool UndoRemoveLink(Node parentNode,Node childNode)
         {
             var command = CreateNewCommand();
-            int records = RecurseUndoRemoveLinks(command, startNode, endNode);
+            int records = RecurseUndoRemoveLinks(command, parentNode, childNode);
             CommitAndCleanUp(command);
 
             return records > 0 ? true : false;
         }
 
-        private int RecurseUndoRemoveLinks(SQLiteCommand command, Node startNode, Node endNode)
+        private int RecurseUndoRemoveLinks(SQLiteCommand command, Node parentNode, Node childNode)
         {
             SQLiteParameter[] parms = new SQLiteParameter[]
             {
-                new SQLiteParameter("$parentid", startNode.NodeId),
-                new SQLiteParameter("$childid", endNode.NodeId),
-                new SQLiteParameter("$childtext", endNode.Text),
+                new SQLiteParameter("$parentid", parentNode.NodeId),
+                new SQLiteParameter("$childid", childNode.NodeId),
+                new SQLiteParameter("$childtext", childNode.Text),
             };
             string sql =
 @"INSERT OR IGNORE INTO nodes (nodeid,nodetext) VALUES ($childid,$childtext);
@@ -156,9 +156,9 @@ INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($parentid,$childid);"
 
             int records = ExecuteQuery(command, sql, parms);
 
-            foreach (var child in endNode.Nodes)
+            foreach (var child in childNode.ChildNodes)
             {
-                records = records + RecurseUndoRemoveLinks(command, endNode, child);
+                records = records + RecurseUndoRemoveLinks(command, childNode, child);
             }
             return records;
         }

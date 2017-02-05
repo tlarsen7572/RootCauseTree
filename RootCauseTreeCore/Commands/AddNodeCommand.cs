@@ -6,7 +6,7 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 {
     class AddNodeCommand : IRootCauseCommand
     {
-        private Node _StartNode;
+        private Node _ParentNode;
         private Node _NewNode;
         private IRootCauseDb _Db;
 
@@ -14,11 +14,11 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 
         public Node NewNode { get { return _NewNode; } }
 
-        public AddNodeCommand(IRootCauseDb db,Node startNode, string text) : this(db,startNode, text, false) { }
+        public AddNodeCommand(IRootCauseDb db,Node parentNode, string text) : this(db,parentNode, text, false) { }
 
-        public AddNodeCommand(IRootCauseDb db, Node startNode,string text,bool executeImmediately)
+        public AddNodeCommand(IRootCauseDb db, Node parentNode,string text,bool executeImmediately)
         {
-            _StartNode = startNode;
+            _ParentNode = parentNode;
             _NewNode = new Cause(text);
             _Db = db;
             if (executeImmediately) { Execute(); }
@@ -27,9 +27,9 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         public void Execute()
         {
             if (Executed) { throw new CommandAlreadyExecutedException(); }
-            if (!_Db.AddNode(_StartNode, _NewNode)) { throw new CommandFailedDbWriteException(); }
-            _StartNode.AddNode(_NewNode);
-            _NewNode.AddParent(_StartNode);
+            if (!_Db.AddNode(_ParentNode, _NewNode)) { throw new CommandFailedDbWriteException(); }
+            _ParentNode.AddChild(_NewNode);
+            _NewNode.AddParent(_ParentNode);
             Executed = true;
         }
 
@@ -37,8 +37,8 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         {
             if (!Executed) { throw new CommandNotExecutedException(); }
             if (!_Db.RemoveNode(_NewNode)) { throw new CommandFailedDbWriteException(); }
-            _StartNode.RemoveNode(_NewNode);
-            _NewNode.RemoveParent(_StartNode);
+            _ParentNode.RemoveChild(_NewNode);
+            _NewNode.RemoveParent(_ParentNode);
             Executed = false;
         }
     }

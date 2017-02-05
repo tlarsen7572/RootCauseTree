@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using com.PorcupineSupernova.RootCauseTreeCore;
+using System.Linq;
 
 namespace com.PorcupineSupernova.RootCauseTreeTests
 {
@@ -15,7 +16,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         public void NewProblem()
         {
             Assert.AreEqual("This is my problem", problem.Text);
-            Assert.AreEqual(0, problem.CountNodes());
+            Assert.AreEqual(0, problem.CountChildNodes());
             Assert.AreEqual(0, problem.CountParentNodes());
         }
 
@@ -24,15 +25,15 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         {
             IRootCauseCommand command = new AddNodeCommand(new NullDb(), problem, "Child 1");
             command.Execute();
-            Assert.AreEqual(1, problem.CountNodes());
+            Assert.AreEqual(1, problem.CountChildNodes());
             Assert.AreEqual(true, command.Executed);
-            foreach (var node in problem.Nodes)
+            foreach (var node in problem.ChildNodes)
             {
                 Assert.AreEqual("Child 1", node.Text);
                 Assert.AreEqual(1, node.CountParentNodes());
             }
             command.Undo();
-            Assert.AreEqual(0, problem.CountNodes());
+            Assert.AreEqual(0, problem.CountChildNodes());
             Assert.AreEqual(false, command.Executed);
         }
 
@@ -55,11 +56,11 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         [TestMethod]
         public void AddNodeImmediately()
         {
-            Assert.AreEqual(0, problem.CountNodes());
+            Assert.AreEqual(0, problem.CountChildNodes());
             Node node = new AddNodeCommand(new NullDb(), problem, "Child 1", true).NewNode;
             Assert.AreEqual("Child 1", node.Text);
             Assert.AreEqual(1, node.CountParentNodes());
-            Assert.AreEqual(1, problem.CountNodes());
+            Assert.AreEqual(1, problem.CountChildNodes());
         }
 
         [TestMethod]
@@ -265,8 +266,8 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
                 }
             }
 
-            Assert.AreEqual(3, dict["Problem"].CountNodes());
-            foreach (var node in dict["Problem"].Nodes)
+            Assert.AreEqual(3, dict["Problem"].CountChildNodes());
+            foreach (var node in dict["Problem"].ChildNodes)
             {
                 Assert.IsTrue("Node 1.1,Node 1.2,Node 2".Contains(node.Text));
             }
@@ -275,6 +276,33 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             command.Undo();
             Assert.AreEqual(defaultTestTree, StringifyTree(dict["Problem"]));
             Assert.AreEqual(false, command.Executed);
+        }
+
+        [TestMethod]
+        public void RemoveNodeWithParentChildLinks()
+        {
+            var db = new NullDb();
+            var node1 = new AddNodeCommand(db, problem, "Node 1", true).NewNode;
+            var node2 = new AddNodeCommand(db, node1, "Node 2", true).NewNode;
+            new AddLinkCommand(db, problem, node2,true);
+
+            var command = new RemoveNodeCommand(db, node1, true);
+            Assert.AreEqual(1, problem.CountChildNodes());
+            Assert.ReferenceEquals(node2, Enumerable.First(problem.ChildNodes));
+            Assert.AreEqual(1, node2.CountParentNodes());
+            Assert.ReferenceEquals(problem, Enumerable.First(node2.ParentNodes));
+
+            command.Undo();
+            Assert.AreEqual(2, problem.CountChildNodes());
+            Assert.ReferenceEquals(node1, Enumerable.First(problem.ChildNodes));
+            Assert.ReferenceEquals(node2, Enumerable.Last(problem.ChildNodes));
+            Assert.AreEqual(2, node2.CountParentNodes());
+            Assert.ReferenceEquals(problem, Enumerable.First(node2.ParentNodes));
+            Assert.ReferenceEquals(node1, Enumerable.Last(node2.ParentNodes));
+            Assert.AreEqual(1, node1.CountParentNodes());
+            Assert.AreEqual(1, node1.CountChildNodes());
+            Assert.ReferenceEquals(problem, Enumerable.First(node1.ParentNodes));
+            Assert.ReferenceEquals(node2, Enumerable.First(node1.ChildNodes));
         }
 
         [TestMethod]
@@ -396,20 +424,20 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             new AddLinkCommand(new NullDb(), dict["Node 2"], node,true);
             Assert.AreEqual(startStr, StringifyTree(dict["Problem"]));
             Assert.AreEqual(2, node.CountParentNodes());
-            Assert.AreEqual(3, dict["Node 1"].CountNodes());
-            Assert.AreEqual(3, dict["Node 2"].CountNodes());
+            Assert.AreEqual(3, dict["Node 1"].CountChildNodes());
+            Assert.AreEqual(3, dict["Node 2"].CountChildNodes());
 
             IRootCauseCommand command = new MoveNodeCommand(new NullDb(), node, dict["Problem"], true);
             Assert.AreEqual("Problem,Node 1,Node 1.1,Node 1.2,Node 2,Node 2.1,Node 2.1.1,Node 2.2,I have multiple parents!", StringifyTree(dict["Problem"]));
             Assert.AreEqual(1, node.CountParentNodes());
-            Assert.AreEqual(2, dict["Node 1"].CountNodes());
-            Assert.AreEqual(2, dict["Node 2"].CountNodes());
+            Assert.AreEqual(2, dict["Node 1"].CountChildNodes());
+            Assert.AreEqual(2, dict["Node 2"].CountChildNodes());
 
             command.Undo();
             Assert.AreEqual(startStr, StringifyTree(dict["Problem"]));
             Assert.AreEqual(2, node.CountParentNodes());
-            Assert.AreEqual(3, dict["Node 1"].CountNodes());
-            Assert.AreEqual(3, dict["Node 2"].CountNodes());
+            Assert.AreEqual(3, dict["Node 1"].CountChildNodes());
+            Assert.AreEqual(3, dict["Node 2"].CountChildNodes());
         }
 
         [TestMethod]
@@ -429,31 +457,31 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             Assert.AreEqual(true, add.Executed);
             Assert.AreEqual(1, container.CountUndoActions());
             Assert.AreEqual(0, container.CountRedoActions());
-            Assert.AreEqual(1,problem.CountNodes());
+            Assert.AreEqual(1,problem.CountChildNodes());
 
             add = new AddNodeCommand(db, problem, "Cause 2",true);
             container.AddAction(add);
             Assert.AreEqual(true, add.Executed);
             Assert.AreEqual(2, container.CountUndoActions());
             Assert.AreEqual(0, container.CountRedoActions());
-            Assert.AreEqual(2, problem.CountNodes());
+            Assert.AreEqual(2, problem.CountChildNodes());
 
             container.Undo();
             Assert.AreEqual(1, container.CountUndoActions());
             Assert.AreEqual(1, container.CountRedoActions());
-            Assert.AreEqual(1, problem.CountNodes());
+            Assert.AreEqual(1, problem.CountChildNodes());
 
             container.Redo();
             Assert.AreEqual(2, container.CountUndoActions());
             Assert.AreEqual(0, container.CountRedoActions());
-            Assert.AreEqual(2, problem.CountNodes());
+            Assert.AreEqual(2, problem.CountChildNodes());
 
             container.Undo();
             add = new AddNodeCommand(db, problem, "Cause 3", true);
             container.AddAction(add);
             Assert.AreEqual(2, container.CountUndoActions());
             Assert.AreEqual(0, container.CountRedoActions());
-            Assert.AreEqual(2, problem.CountNodes());
+            Assert.AreEqual(2, problem.CountChildNodes());
         }
 
         [TestMethod]
@@ -516,7 +544,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         private string StringifyTree(Node node)
         {
             string str = node.Text;
-            foreach (Node child in node.Nodes)
+            foreach (Node child in node.ChildNodes)
             {
                 str = string.Concat(str, ",", StringifyTree(child));
             }

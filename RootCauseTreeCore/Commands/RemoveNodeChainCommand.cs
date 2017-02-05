@@ -29,7 +29,7 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             foreach (var parent in _RemoveNode.ParentNodes)
             {
                 _Parents.Add(parent);
-                parent.RemoveNode(_RemoveNode);
+                parent.RemoveChild(_RemoveNode);
             }
             foreach (var parent in _Parents)
             {
@@ -45,7 +45,7 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             foreach (var parent in _Parents)
             {
                 _RemoveNode.AddParent(parent);
-                parent.AddNode(_RemoveNode);
+                parent.AddChild(_RemoveNode);
             }
             _Parents.Clear();
             Executed = false;

@@ -6,18 +6,18 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
 {
     class RemoveLinkCommand : IRootCauseCommand
     {
-        private Node _StartNode;
-        private Node _EndNode;
+        private Node _ParentNode;
+        private Node _ChildNode;
         private IRootCauseDb _Db;
 
         public bool Executed { get; private set; }
 
-        public RemoveLinkCommand(IRootCauseDb db,Node startNode, Node endNode) : this(db,startNode, endNode, false) { }
+        public RemoveLinkCommand(IRootCauseDb db,Node parentNode, Node childNode) : this(db,parentNode, childNode, false) { }
 
-        public RemoveLinkCommand(IRootCauseDb db, Node startNode, Node endNode,bool executeImmediately)
+        public RemoveLinkCommand(IRootCauseDb db, Node parentNode, Node childNode,bool executeImmediately)
         {
-            _StartNode = startNode;
-            _EndNode = endNode;
+            _ParentNode = parentNode;
+            _ChildNode = childNode;
             _Db = db;
             if (executeImmediately) { Execute(); }
         }
@@ -25,18 +25,18 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         public void Execute()
         {
             if (Executed) { throw new CommandAlreadyExecutedException(); }
-            if(!_Db.RemoveLink(_StartNode, _EndNode)) { throw new CommandFailedDbWriteException(); }
-            _StartNode.RemoveNode(_EndNode);
-            _EndNode.RemoveParent(_StartNode);
+            if(!_Db.RemoveLink(_ParentNode, _ChildNode)) { throw new CommandFailedDbWriteException(); }
+            _ParentNode.RemoveChild(_ChildNode);
+            _ChildNode.RemoveParent(_ParentNode);
             Executed = true;
         }
 
         public void Undo()
         {
             if (!Executed) { throw new CommandNotExecutedException(); }
-            if (!_Db.UndoRemoveLink(_StartNode, _EndNode)) { throw new CommandFailedDbWriteException(); }
-            _StartNode.AddNode(_EndNode);
-            _EndNode.AddParent(_StartNode);
+            if (!_Db.UndoRemoveLink(_ParentNode, _ChildNode)) { throw new CommandFailedDbWriteException(); }
+            _ParentNode.AddChild(_ChildNode);
+            _ChildNode.AddParent(_ParentNode);
             Executed = false;
         }
     }

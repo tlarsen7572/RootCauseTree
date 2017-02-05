@@ -36,10 +36,10 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             foreach (var parent in _Parents)
             {
                 _MovingNode.RemoveParent(parent);
-                parent.RemoveNode(_MovingNode);
+                parent.RemoveChild(_MovingNode);
             }
             _MovingNode.AddParent(_TargetNode);
-            _TargetNode.AddNode(_MovingNode);
+            _TargetNode.AddChild(_MovingNode);
             Executed = true;
         }
 
@@ -48,10 +48,10 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             if (!Executed) { throw new CommandNotExecutedException(); }
             if (!_Db.UndoMoveNode(_MovingNode, _TargetNode, _Parents)) { throw new CommandFailedDbWriteException(); }
             _MovingNode.RemoveParent(_TargetNode);
-            _TargetNode.RemoveNode(_MovingNode);
+            _TargetNode.RemoveChild(_MovingNode);
             foreach (var parent in _Parents)
             {
-                parent.AddNode(_MovingNode);
+                parent.AddChild(_MovingNode);
                 _MovingNode.AddParent(parent);
             }
             _Parents.Clear();

@@ -405,16 +405,16 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             Node node3_1 = NodeFactory.CreateCause("Node 3.1", SequentialId.NewId());
             Node node3_2 = NodeFactory.CreateCause("Node 3.2", SequentialId.NewId());
 
-            problem.AddNode(node1_1);
-            problem.AddNode(node1_2);
-            node1_1.AddNode(node2_1);
-            node1_2.AddNode(node2_1);
-            node1_2.AddNode(node2_2);
-            node1_2.AddNode(node2_3);
-            node2_1.AddNode(node3_1);
-            node2_2.AddNode(node3_1);
-            node2_2.AddNode(node3_2);
-            node2_3.AddNode(node3_2);
+            problem.AddChild(node1_1);
+            problem.AddChild(node1_2);
+            node1_1.AddChild(node2_1);
+            node1_2.AddChild(node2_1);
+            node1_2.AddChild(node2_2);
+            node1_2.AddChild(node2_3);
+            node2_1.AddChild(node3_1);
+            node2_2.AddChild(node3_1);
+            node2_2.AddChild(node3_2);
+            node2_3.AddChild(node3_2);
 
             SqliteDb.GetInstance().InsertTopLevel(problem);
             SqliteDb.GetInstance().AddNode(problem, node1_1);

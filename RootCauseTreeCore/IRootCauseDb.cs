@@ -7,17 +7,17 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
     interface IRootCauseDb
     {
         bool InsertTopLevel(Node node);
-        bool AddLink(Node startNode,Node endNode);
-        bool RemoveLink(Node startNode,Node endNode);
+        bool AddLink(Node parentNode,Node childNode);
+        bool RemoveLink(Node parentNode,Node childNode);
         bool ChangeNodeText(Node node, string newText);
-        bool AddNode(Node startNode, Node newNode);
+        bool AddNode(Node parentNode, Node newNode);
         bool RemoveNode(Node removeNode);
         bool RemoveNodeChain(Node removeNode);
-        bool MoveNode(Node node, Node targetNode);
-        bool UndoMoveNode(Node node, Node targetNode, IEnumerable<Node> oldParents);
+        bool MoveNode(Node movingNode, Node targetNode);
+        bool UndoMoveNode(Node moveingNode, Node targetNode, IEnumerable<Node> oldParents);
         bool UndoRemoveNodeChain(Node removeNode, IEnumerable<Node> oldParents);
-        bool UndoRemoveNode(Node removeNode, IEnumerable<Node> oldParents,IEnumerable<Node> oldNodes);
-        bool UndoRemoveLink(Node startNode, Node endNode);
+        bool UndoRemoveNode(Node removeNode, IEnumerable<Node> oldParents,IEnumerable<Node> oldNodes,Dictionary<Node,Node> parentChildLinks);
+        bool UndoRemoveLink(Node parentNode, Node childNode);
         bool RemoveTopLevel(Node node);
     }
 }
