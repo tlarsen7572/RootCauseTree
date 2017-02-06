@@ -46,7 +46,7 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         public void Undo()
         {
             if (!Executed) { throw new CommandNotExecutedException(); }
-            if (!_Db.UndoMoveNode(_MovingNode, _TargetNode, _Parents)) { throw new CommandFailedDbWriteException(); }
+            if (!_Db.UndoMoveNode(_MovingNode, _Parents)) { throw new CommandFailedDbWriteException(); }
             _MovingNode.RemoveParent(_TargetNode);
             _TargetNode.RemoveChild(_MovingNode);
             foreach (var parent in _Parents)

@@ -100,7 +100,7 @@ INSERT INTO hierarchy (parentid,childid) VALUES ($parentid,$newid);";
             int records = ExecuteQuery(command,sql, parms);
             CommitAndCleanUp(command);
 
-            return records == 2 ? true : false;
+            return records > 0 ? true : false;
         }
 
         public bool RemoveNode(Node removeNode)
@@ -125,22 +125,57 @@ DELETE FROM nodes WHERE nodeid = $nodeid;";
             }
             CommitAndCleanUp(command);
 
-            return records == 1 ? true : false;
+            return records > 0 ? true : false;
         }
 
         public bool RemoveNodeChain(Node removeNode)
         {
-            throw new NotImplementedException();
+            var command = CreateNewCommand();
+            var sql =
+@"DELETE FROM hierarchy WHERE parentid = $nodeid OR childid = $nodeid;
+DELETE FROM nodes WHERE nodeid = $nodeid;";
+            SQLiteParameter[] parms = new SQLiteParameter[1] { new SQLiteParameter("$nodeid", removeNode.NodeId) };
+            int records = ExecuteQuery(command, sql, parms, true);
+            CommitAndCleanUp(command);
+
+            return records > 0 ? true : false;
         }
 
         public bool MoveNode(Node movingNode, Node targetNode)
         {
-            throw new NotImplementedException();
+            var command = CreateNewCommand();
+            var sql =
+@"DELETE FROM hierarchy WHERE childid = $movingnode;
+INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($targetnode,$movingnode);";
+            SQLiteParameter[] parms = new SQLiteParameter[2]
+            {
+                new SQLiteParameter("$movingnode", movingNode.NodeId),
+                new SQLiteParameter("$targetnode",targetNode.NodeId)
+            };
+            int records = ExecuteQuery(command, sql, parms);
+            CommitAndCleanUp(command);
+
+            return records > 0 ? true : false;
         }
 
-        public bool UndoMoveNode(Node movingNode, Node targetNode, IEnumerable<Node> oldParents)
+        public bool UndoMoveNode(Node movingNode, IEnumerable<Node> oldParents)
         {
-            throw new NotImplementedException();
+            var command = CreateNewCommand();
+            var sql = @"DELETE FROM hierarchy WHERE childid = $movingnode;";
+            SQLiteParameter[] parms = new SQLiteParameter[1] { new SQLiteParameter("$movingnode", movingNode.NodeId) };
+            int records = ExecuteQuery(command, sql, parms);
+
+            command.CommandText = @"INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($parent,$child)";
+            foreach (var oldParent in oldParents)
+            {
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("$parent", oldParent.NodeId);
+                command.Parameters.AddWithValue("$child", movingNode.NodeId);
+                records = records + command.ExecuteNonQuery();
+            }
+            CommitAndCleanUp(command);
+
+            return records > 0 ? true : false;
         }
 
         public bool UndoRemoveNodeChain(Node removeNode, IEnumerable<Node> oldParents)

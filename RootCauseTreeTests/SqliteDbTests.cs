@@ -32,6 +32,9 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             TestRemoveFinalLink();
             TestUndoRemoveFinalLink();
             TestRemoveNode();
+            TestRemoveNodeChain();
+            TestMoveNodeCommand();
+            TestUndoMoveNodeCommand();
         }
 
         //TESTS
@@ -273,6 +276,102 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             CleanUpCommand(command);
         }
 
+        private void TestRemoveNodeChain()
+        {
+            var command = CreateCommandForNewDb("Tester.rootcause");
+            Dictionary<string, Node> nodes = CreateComplexModelForTest();
+            SqliteDb.GetInstance().RemoveNodeChain(nodes["Node 1.2"]);
+
+            var expectedLinks = new Node[3, 2]
+            {
+                {nodes["Problem"],nodes["Node 1.1"] },
+                {nodes["Node 1.1"],nodes["Node 2.1"] },
+                {nodes["Node 2.1"], nodes["Node 3.1"] }
+            };
+            TestHierarchy(command, expectedLinks);
+
+            var expectedNodes = new Node[4]
+            {
+                nodes["Problem"],
+                nodes["Node 1.1"],
+                nodes["Node 2.1"],
+                nodes["Node 3.1"]
+            };
+            TestNodes(command, expectedNodes);
+            CleanUpCommand(command);
+        }
+
+        private void TestMoveNodeCommand()
+        {
+            var command = CreateCommandForNewDb("Tester.rootcause");
+            Dictionary<string, Node> nodes = CreateComplexModelForTest();
+            SqliteDb.GetInstance().MoveNode(nodes["Node 2.1"],nodes["Node 3.2"]);
+
+            var expectedLinks = new Node[9, 2]
+            {
+                {nodes["Problem"],nodes["Node 1.1"] },
+                {nodes["Problem"],nodes["Node 1.2"] },
+                {nodes["Node 1.2"],nodes["Node 2.2"] },
+                {nodes["Node 1.2"],nodes["Node 2.3"] },
+                {nodes["Node 2.2"],nodes["Node 3.1"] },
+                {nodes["Node 2.2"],nodes["Node 3.2"] },
+                {nodes["Node 2.3"],nodes["Node 3.2"] },
+                {nodes["Node 3.2"],nodes["Node 2.1"] },
+                {nodes["Node 2.1"], nodes["Node 3.1"] }
+            };
+            TestHierarchy(command, expectedLinks);
+
+            var expectedNodes = new Node[8]
+            {
+                nodes["Problem"],
+                nodes["Node 1.1"],
+                nodes["Node 1.2"],
+                nodes["Node 2.1"],
+                nodes["Node 2.2"],
+                nodes["Node 2.3"],
+                nodes["Node 3.1"],
+                nodes["Node 3.2"]
+            };
+            TestNodes(command, expectedNodes);
+            CleanUpCommand(command);
+        }
+
+        private void TestUndoMoveNodeCommand()
+        {
+            var command = CreateCommandForNewDb("Tester.rootcause");
+            Dictionary<string, Node> nodes = CreateComplexModelForTest();
+            SqliteDb.GetInstance().MoveNode(nodes["Node 2.1"], nodes["Node 3.2"]);
+            SqliteDb.GetInstance().UndoMoveNode(nodes["Node 2.1"], new Node[2] { nodes["Node 1.1"], nodes["Node 1.2"] });
+
+            var expectedLinks = new Node[10, 2]
+            {
+                {nodes["Problem"],nodes["Node 1.1"] },
+                {nodes["Problem"],nodes["Node 1.2"] },
+                {nodes["Node 1.1"],nodes["Node 2.1"] },
+                {nodes["Node 1.2"],nodes["Node 2.1"] },
+                {nodes["Node 1.2"],nodes["Node 2.2"] },
+                {nodes["Node 1.2"],nodes["Node 2.3"] },
+                {nodes["Node 2.2"],nodes["Node 3.1"] },
+                {nodes["Node 2.2"],nodes["Node 3.2"] },
+                {nodes["Node 2.3"],nodes["Node 3.2"] },
+                {nodes["Node 2.1"], nodes["Node 3.1"] }
+            };
+            TestHierarchy(command, expectedLinks);
+
+            var expectedNodes = new Node[8]
+            {
+                nodes["Problem"],
+                nodes["Node 1.1"],
+                nodes["Node 1.2"],
+                nodes["Node 2.1"],
+                nodes["Node 2.2"],
+                nodes["Node 2.3"],
+                nodes["Node 3.1"],
+                nodes["Node 3.2"]
+            };
+            TestNodes(command, expectedNodes);
+            CleanUpCommand(command);
+        }
 
         //UTILITIES
         private SQLiteCommand CreateCommandForNewDb(string fileName)
