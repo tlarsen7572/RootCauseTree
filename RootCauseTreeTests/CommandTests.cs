@@ -505,7 +505,6 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             container.Redo();
         }
 
-
         /* This method builds a complex tree for some of the link and removal command testing.
          * The structure of the tree is as follows:
          * Problem

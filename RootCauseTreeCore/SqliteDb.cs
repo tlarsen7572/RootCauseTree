@@ -180,12 +180,104 @@ INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($targetnode,$movingno
 
         public bool UndoRemoveNodeChain(Node removeNode, IEnumerable<Node> oldParents)
         {
-            throw new NotImplementedException();
+            var command = CreateNewCommand();
+
+            //Insert the removed node
+            var sql =
+@"INSERT INTO nodes (nodeid,nodetext) VALUES ($removednode,$removednodetext);";
+            SQLiteParameter[] parms = new SQLiteParameter[2] 
+            {
+                new SQLiteParameter("$removednode", removeNode.NodeId),
+                new SQLiteParameter("$removednodetext",removeNode.Text)
+            };
+            int records = ExecuteQuery(command, sql, parms);
+
+            //Rebuild the links between the removed node and its old parents
+            command.CommandText =
+@"INSERT INTO hierarchy(parentid, childid) VALUES($parentnode,$removednode);";
+            foreach (var parent in oldParents)
+            {
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("$parentnode", parent.NodeId);
+                command.Parameters.AddWithValue("$removednode", removeNode.NodeId);
+                records = records + command.ExecuteNonQuery();
+            }
+
+            //Recreate the nodes and links under the removed node
+            command.CommandText =
+@"INSERT OR IGNORE INTO nodes (nodeid,nodetext) VALUES ($child,$childtext);
+INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($parent,$child);";
+
+            Func<SQLiteCommand, Node,int> rebuilder = null;
+            rebuilder = (SQLiteCommand recurseCommand, Node parent) =>
+            {
+                int recurseRecords = 0;
+                foreach (var child in parent.ChildNodes)
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.AddWithValue("$child", child.NodeId);
+                    command.Parameters.AddWithValue("$childtext", child.Text);
+                    command.Parameters.AddWithValue("$parent", parent.NodeId);
+                    recurseRecords = command.ExecuteNonQuery();
+                    recurseRecords = recurseRecords + rebuilder(recurseCommand, child);
+                }
+                return recurseRecords;
+            };
+
+            records = records + rebuilder(command, removeNode);
+            CommitAndCleanUp(command);
+
+            return records > 0 ? true : false;
         }
 
-        public bool UndoRemoveNode(Node removeNode, IEnumerable<Node> oldParents, IEnumerable<Node> oldNodes,Dictionary<Node,Node> parentChildLinks)
+        public bool UndoRemoveNode(Node removeNode, IEnumerable<Node> oldParents, IEnumerable<Node> oldChildren,Dictionary<Node,Node> parentChildLinks)
         {
-            throw new NotImplementedException();
+            var command = CreateNewCommand();
+
+            //Add deleted node back to the list of nodes
+            command.CommandText = @"INSERT INTO nodes (nodeid,nodetext) VALUES ($id,$text);";
+            command.Parameters.AddWithValue("$id", removeNode.NodeId);
+            command.Parameters.AddWithValue("$text", removeNode.Text);
+            int records = command.ExecuteNonQuery();
+
+            //Remove old links and add back links between the parents and the deleted node
+            command.CommandText =
+@"DELETE FROM hierarchy WHERE parentid = $parent AND childid = $child;
+INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($parent,$deletednode)";
+            foreach (var parent in oldParents)
+            {
+                foreach (var child in oldChildren)
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.AddWithValue("$parent", parent.NodeId);
+                    command.Parameters.AddWithValue("$child", child.NodeId);
+                    command.Parameters.AddWithValue("$deletednode", removeNode.NodeId);
+                    records = records + command.ExecuteNonQuery();
+                }
+            }
+
+            //Add back links between the children and the deleted node
+            command.CommandText = $"INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($deletednode,$child);";
+            foreach (var child in oldChildren)
+            {
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("$child", child.NodeId);
+                command.Parameters.AddWithValue("$deletednode", removeNode.NodeId);
+                records = records + command.ExecuteNonQuery();
+            }
+
+            //Add back original links between the parents and children
+            command.CommandText = $"INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($parent,$child);";
+            foreach (var link in parentChildLinks)
+            {
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("$child", link.Key.NodeId);
+                command.Parameters.AddWithValue("$parent", link.Value.NodeId);
+                records = records + command.ExecuteNonQuery();
+            }
+
+            CommitAndCleanUp(command);
+            return records > 0 ? true : false;
         }
 
         public bool UndoRemoveLink(Node parentNode,Node childNode)
@@ -220,7 +312,16 @@ INSERT OR IGNORE INTO hierarchy (parentid,childid) VALUES ($parentid,$childid);"
 
         public bool RemoveTopLevel(Node node)
         {
-            throw new NotImplementedException();
+            var command = CreateNewCommand();
+            string sql =
+@"DELETE FROM toplevel WHERE nodeid = $toplevel;
+DELETE FROM nodes WHERE nodeid = $toplevel;
+DELETE FROM hierarchy WHERE parentid = $toplevel OR childid = $toplevel;";
+            SQLiteParameter[] parms = new SQLiteParameter[1] { new SQLiteParameter("$toplevel", node.NodeId) };
+            int records = ExecuteQuery(command, sql, parms, true);
+            CommitAndCleanUp(command);
+
+            return records > 0 ? true : false;
         }
 
         private void CreateDbFile()

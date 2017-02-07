@@ -35,6 +35,9 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             TestRemoveNodeChain();
             TestMoveNodeCommand();
             TestUndoMoveNodeCommand();
+            TestUndoRemoveNodeChain();
+            TestUndoRemoveNode();
+            TestRemoveTopLevel();
         }
 
         //TESTS
@@ -343,6 +346,49 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             SqliteDb.GetInstance().MoveNode(nodes["Node 2.1"], nodes["Node 3.2"]);
             SqliteDb.GetInstance().UndoMoveNode(nodes["Node 2.1"], new Node[2] { nodes["Node 1.1"], nodes["Node 1.2"] });
 
+            VerifyDefaultComplexModel(command, nodes);
+            CleanUpCommand(command);
+        }
+
+        private void TestUndoRemoveNodeChain()
+        {
+            var command = CreateCommandForNewDb("Tester.rootcause");
+            Dictionary<string, Node> nodes = CreateComplexModelForTest();
+            SqliteDb.GetInstance().RemoveNodeChain(nodes["Node 1.2"]);
+            SqliteDb.GetInstance().UndoRemoveNodeChain(nodes["Node 1.2"], new Node[1] { nodes["Problem"] });
+
+            VerifyDefaultComplexModel(command, nodes);
+            CleanUpCommand(command);
+        }
+
+        private void TestUndoRemoveNode()
+        {
+            var command = CreateCommandForNewDb("Tester.rootcause");
+            Dictionary<string, Node> nodes = CreateComplexModelForTest();
+            SqliteDb.GetInstance().RemoveNode(nodes["Node 1.2"]);
+            SqliteDb.GetInstance().UndoRemoveNode(nodes["Node 1.2"], new List<Node> { nodes["Problem"] }, new List<Node> { nodes["Node 2.1"], nodes["Node 2.2"], nodes["Node 2.3"] }, new Dictionary<Node, Node>());
+
+            VerifyDefaultComplexModel(command, nodes);
+            CleanUpCommand(command);
+        }
+
+        private void TestRemoveTopLevel()
+        {
+            var command = CreateCommandForNewDb("Tester.rootcause");
+            Dictionary<string, Node> nodes = CreateComplexModelForTest();
+            SqliteDb.GetInstance().RemoveTopLevel(nodes["Problem"]);
+
+            var expectedLinks = new Node[0, 2] { };
+            TestHierarchy(command, expectedLinks);
+
+            var expectedNodes = new Node[0] { };
+            TestNodes(command, expectedNodes);
+            CleanUpCommand(command);
+        }
+
+        //UTILITIES
+        private void VerifyDefaultComplexModel(SQLiteCommand command,Dictionary<string,Node> nodes)
+        {
             var expectedLinks = new Node[10, 2]
             {
                 {nodes["Problem"],nodes["Node 1.1"] },
@@ -370,10 +416,8 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
                 nodes["Node 3.2"]
             };
             TestNodes(command, expectedNodes);
-            CleanUpCommand(command);
         }
 
-        //UTILITIES
         private SQLiteCommand CreateCommandForNewDb(string fileName)
         {
             string filePath = GetPath(fileName);
