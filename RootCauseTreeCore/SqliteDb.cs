@@ -25,6 +25,51 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             return true;
         }
 
+        public IEnumerable<ProblemContainer> LoadFile()
+        {
+            List<ProblemContainer> problems = new List<ProblemContainer>();
+            HashSet<long[]> hierarchy = new HashSet<long[]>();
+            Dictionary<long, Node> nodes = new Dictionary<long, Node>();
+            ProblemContainer problem;
+            Node node;
+
+            var command = CreateNewCommand();
+            command.CommandText = 
+@"SELECT a.nodeid,b.nodetext FROM toplevel a JOIN nodes b ON a.nodeid = b.nodeid;
+SELECT * FROM hierarchy;
+SELECT a.nodeid,a.nodetext FROM nodes a LEFT JOIN toplevel b ON a.nodeid = b.nodeid WHERE b.nodeid IS NULL;";
+
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                node = NodeFactory.CreateProblem(reader["nodetext"].ToString(), (long)reader["nodeid"]);
+                problem = new ProblemContainer(node);
+                problems.Add(problem);
+                nodes.Add(node.NodeId, node);
+            }
+
+            reader.NextResult();
+            while (reader.Read())
+            {
+                hierarchy.Add(new long[2] { (long)reader["parentid"], (long)reader["childid"] });
+            }
+
+            reader.NextResult();
+            while (reader.Read())
+            {
+                node = NodeFactory.CreateCause(reader["nodetext"].ToString(), (long)reader["nodeid"]);
+                nodes.Add(node.NodeId, node);
+            }
+
+            NullDb db = new NullDb();
+            foreach (var link in hierarchy)
+            {
+                new AddLinkCommand(db, nodes[link[0]], nodes[link[1]],true);
+            }
+
+            return problems;
+        }
+
         public bool InsertTopLevel(Node node)
         {
             SQLiteParameter[] parms = new SQLiteParameter[]

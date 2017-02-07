@@ -17,6 +17,11 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             _InitialProblem = NodeFactory.CreateProblem(initialProblemText, SequentialId.NewId());
         }
 
+        public ProblemContainer(Node node)
+        {
+            _InitialProblem = node;
+        }
+
         public int CountUndoActions() { return _UndoActions.Count; }
         public int CountRedoActions() { return _RedoActions.Count; }
 

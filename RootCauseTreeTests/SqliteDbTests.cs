@@ -38,9 +38,47 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             TestUndoRemoveNodeChain();
             TestUndoRemoveNode();
             TestRemoveTopLevel();
+            TestLoadFile();
         }
 
         //TESTS
+        private void TestLoadFile()
+        {
+            CreateComplexModelForTest();
+            IEnumerable<ProblemContainer> problems = SqliteDb.GetInstance().LoadFile();
+            HashSet<string> links = new HashSet<string>();
+
+            Func<HashSet<string>, Node, int> fillLinks = null;
+            fillLinks = (HashSet<string> listOfLinks,Node parent) =>
+            {
+                int linkCount = 0;
+                foreach (var child in parent.ChildNodes)
+                {
+                    if (listOfLinks.Add($"{parent.Text} links to {child.Text}")) { linkCount++; }
+                    linkCount = linkCount + fillLinks(listOfLinks, child);
+                }
+                return linkCount;
+            };
+
+            int totalLinks = 0;
+            foreach (var problem in problems)
+            {
+                totalLinks = fillLinks(links, problem.InitialProblem);
+            }
+
+            Assert.AreEqual(10, totalLinks);
+            Assert.IsTrue(links.Contains("Problem links to Node 1.1"));
+            Assert.IsTrue(links.Contains("Problem links to Node 1.2"));
+            Assert.IsTrue(links.Contains("Node 1.1 links to Node 2.1"));
+            Assert.IsTrue(links.Contains("Node 1.2 links to Node 2.1"));
+            Assert.IsTrue(links.Contains("Node 1.2 links to Node 2.2"));
+            Assert.IsTrue(links.Contains("Node 1.2 links to Node 2.3"));
+            Assert.IsTrue(links.Contains("Node 2.1 links to Node 3.1"));
+            Assert.IsTrue(links.Contains("Node 2.2 links to Node 3.1"));
+            Assert.IsTrue(links.Contains("Node 2.2 links to Node 3.2"));
+            Assert.IsTrue(links.Contains("Node 2.3 links to Node 3.2"));
+        }
+
         private void TestCreateNewFile()
         {
             var command = CreateCommandForNewDb("Tester.rootcause");
