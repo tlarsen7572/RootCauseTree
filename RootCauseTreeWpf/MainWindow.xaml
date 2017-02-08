@@ -1,13 +1,41 @@
-﻿<Window x:Class="com.PorcupineSupernova.RootCauseTreeWpf.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:com.PorcupineSupernova.RootCauseTreeWpf"
         xmlns:core="clr-namespace:com.PorcupineSupernova.RootCauseTreeCore"
+        x:Class="com.PorcupineSupernova.RootCauseTreeWpf.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Arborist" Height="350" Width="525">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="128*"/>
+            <ColumnDefinition Width="389*"/>
+        </Grid.ColumnDefinitions>
+        <GridSplitter Width="8"/>
+        <Menu Height="32" Margin="0,0,8,0" VerticalAlignment="Top">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <MenuItem Header="_Menu"/>
+        </Menu>
+        <ListView x:Name="ProblemList" Margin="0,32,8,128" Background="#FFCCFFFF" BorderBrush="{x:Null}" BorderThickness="0">
+            <ListView.Resources>
+                <Style TargetType="GridViewColumnHeader">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </Style>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView AllowsColumnReorder="False">
+                    <GridViewColumn/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button x:Name="AddProblem" Content="New Problem" Height="28" Margin="0,0,8,100" VerticalAlignment="Bottom" Background="#FFACEAEA" BorderBrush="#FFF0F0F0"/>
+        <Grid x:Name="DeleteSpace" Height="100" VerticalAlignment="Bottom" Margin="0,0,8,0" Background="#FFFFF8B5"/>
+        <Grid x:Name="Workspace" Grid.Column="1" Margin="0"/>
     </Grid>
 </Window>

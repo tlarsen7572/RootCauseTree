@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using com.PorcupineSupernova.RootCauseTreeCore;
 
 namespace com.PorcupineSupernova.RootCauseTreeWpf
 {
@@ -13,5 +14,6 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
     /// </summary>
     public partial class App : Application
     {
+        private List<ProblemContainer> Problems = new List<ProblemContainer>();
     }
 }

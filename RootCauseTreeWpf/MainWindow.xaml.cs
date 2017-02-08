@@ -23,6 +23,8 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         public MainWindow()
         {
             InitializeComponent();
+            Microsoft.Msagl.WpfGraphControl.GraphViewer viewer = new Microsoft.Msagl.WpfGraphControl.GraphViewer();
+
         }
     }
 }
