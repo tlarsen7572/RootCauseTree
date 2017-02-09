@@ -25,8 +25,9 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             return true;
         }
 
-        public IEnumerable<ProblemContainer> LoadFile()
+        public IEnumerable<ProblemContainer> LoadFile(string path)
         {
+            CurrentFile = path;
             List<ProblemContainer> problems = new List<ProblemContainer>();
             HashSet<long[]> hierarchy = new HashSet<long[]>();
             Dictionary<long, Node> nodes = new Dictionary<long, Node>();
@@ -66,6 +67,7 @@ SELECT a.nodeid,a.nodetext FROM nodes a LEFT JOIN toplevel b ON a.nodeid = b.nod
             {
                 new AddLinkCommand(db, nodes[link[0]], nodes[link[1]],true);
             }
+            CommitAndCleanUp(command);
 
             return problems;
         }
@@ -84,7 +86,7 @@ INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);";
             int records = ExecuteQuery(command,sql ,parms);
             CommitAndCleanUp(command);
 
-            return records == 1 ? true : false;
+            return records > 0 ? true : false;
         }
 
         public bool AddLink(Node parentNode, Node childNode)
@@ -98,7 +100,7 @@ INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);";
             int records = ExecuteQuery(command,@"INSERT INTO hierarchy (parentid,childid) VALUES ($parent,$child);", parms);
             CommitAndCleanUp(command);
 
-            return records == 1 ? true : false;
+            return records > 0 ? true : false;
         }
 
         public bool RemoveLink(Node parentNode, Node childNode)
@@ -112,7 +114,7 @@ INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);";
             int records = ExecuteQuery(command,@"DELETE FROM hierarchy WHERE parentid = $parentnode AND childid = $childnode;", parms,true);
             CommitAndCleanUp(command);
 
-            return records == 1 ? true : false;
+            return records > 0 ? true : false;
         }
 
         public bool ChangeNodeText(Node node, string newText)
@@ -126,7 +128,7 @@ INSERT INTO nodes (nodeid,nodetext) VALUES ($newid,$newtext);";
             int records = ExecuteQuery(command,@"UPDATE nodes SET nodetext = $newtext WHERE nodeid = $nodeid;", parms);
             CommitAndCleanUp(command);
 
-            return records == 1 ? true : false;
+            return records > 0 ? true : false;
         }
 
         public bool AddNode(Node parentNode, Node newNode)

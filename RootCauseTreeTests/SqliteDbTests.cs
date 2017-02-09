@@ -45,7 +45,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         private void TestLoadFile()
         {
             CreateComplexModelForTest();
-            IEnumerable<ProblemContainer> problems = SqliteDb.GetInstance().LoadFile();
+            IEnumerable<ProblemContainer> problems = SqliteDb.GetInstance().LoadFile(GetPath("Tester.rootcause"));
             HashSet<string> links = new HashSet<string>();
 
             Func<HashSet<string>, Node, int> fillLinks = null;

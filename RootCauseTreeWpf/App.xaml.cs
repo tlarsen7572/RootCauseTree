@@ -14,6 +14,5 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
     /// </summary>
     public partial class App : Application
     {
-        private List<ProblemContainer> Problems = new List<ProblemContainer>();
     }
 }
