@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using com.PorcupineSupernova.RootCauseTreeWpf;
 using com.PorcupineSupernova.RootCauseTreeCore;
+using Microsoft.Win32;
 
 namespace com.PorcupineSupernova.RootCauseTreeWpf
 {
@@ -23,21 +24,22 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
     public partial class MainWindow : Window
     {
         MainWindowViewModel vm;
-        private Microsoft.Win32.OpenFileDialog openFileDlg = new Microsoft.Win32.OpenFileDialog();
-        private Microsoft.Win32.SaveFileDialog newFileDlg = new Microsoft.Win32.SaveFileDialog();
+        private OpenFileDialog openFileDlg = new OpenFileDialog();
+        private SaveFileDialog newFileDlg = new SaveFileDialog();
         private string fileFilter = "Root Cause Files|*.rootcause";
         private string defaultExt = ".rootcause";
+        private double scaleFactor = 1.2;
+        private bool leftMouseDragged = false;
+        private Point lastMousePos;
 
         public MainWindow()
         {
             InitializeComponent();
-            vm = new MainWindowViewModel();
-            DataContext = vm;
         }
 
         private void ExitApp_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void OpenFile_Click(object sender, RoutedEventArgs e)
@@ -52,6 +54,8 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            vm = DataContext as MainWindowViewModel;
+
             openFileDlg.Multiselect = false;
             openFileDlg.DefaultExt = defaultExt;
             openFileDlg.Filter = fileFilter;
@@ -59,9 +63,18 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             newFileDlg.DefaultExt = defaultExt;
             newFileDlg.Filter = fileFilter;
             newFileDlg.AddExtension = true;
+        }
 
-            Microsoft.Msagl.WpfGraphControl.GraphViewer viewer = new Microsoft.Msagl.WpfGraphControl.GraphViewer();
-            viewer.BindToPanel(Workspace);
+        private void TreeContainer_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var position = e.GetPosition(TreeCanvas);
+            var transform = TreeCanvas.RenderTransform as MatrixTransform;
+            var matrix = transform.Matrix;
+            var scale = e.Delta >= 0 ? scaleFactor : (1.0 / scaleFactor);
+
+            matrix.ScaleAtPrepend(scale, scale, position.X, position.Y);
+            transform.Matrix = matrix;
+            TreeCanvas.UpdateLayout();
         }
 
         private void NewFile_Click(object sender, RoutedEventArgs e)
@@ -76,11 +89,35 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void AddProblem_Click(object sender, RoutedEventArgs e)
         {
-            var textDlg = new TextDialog("Add Problem", "Enter a new problem statement.");
+            var textDlg = new TextDialog(this,"Add Problem", "Enter a new problem statement.");
             if (textDlg.ShowDialog().Value)
             {
                 vm.CreateProblem(textDlg.Text);
             }
+        }
+
+        private void TreeContainer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            leftMouseDragged = true;
+            lastMousePos = e.GetPosition(this);
+        }
+
+        private void TreeContainer_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            leftMouseDragged = false;
+        }
+
+        private void TreeContainer_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!leftMouseDragged) return;
+
+            var position = e.GetPosition(this);
+            var transform = TreeCanvas.RenderTransform as MatrixTransform;
+            var matrix = transform.Matrix;
+            matrix.Translate(position.X - lastMousePos.X, position.Y - lastMousePos.Y);
+            transform.Matrix = matrix;
+            lastMousePos = position;
+            TreeCanvas.UpdateLayout();
         }
     }
 }

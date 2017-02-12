@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -8,49 +9,74 @@ using com.PorcupineSupernova.RootCauseTreeCore;
 
 namespace com.PorcupineSupernova.RootCauseTreeWpf
 {
-    class MainWindowViewModel : System.ComponentModel.INotifyPropertyChanged
+    class MainWindowViewModel : INotifyPropertyChanged
     {
-        private List<ProblemContainer> problems = new List<ProblemContainer>();
-        private string Path;
-        private bool isFileOpen;
-        private ProblemContainer currentProblem;
-
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string property)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
 
-        public List<ProblemContainer> Problems { get { return problems; } private set { } }
+        public MainWindowViewModel()
+        {
+            Problems = new ObservableCollection<ProblemContainer>();
+            Graph = new Graphing.RootCauseGraph();
+            LayoutAlgorithmType = "Tree";
+        }
+
+        private string Path;
+        private bool isFileOpen;
+        private ProblemContainer currentProblem;
+        private Graphing.RootCauseGraph graph;
+        private bool treeIsVisible;
+
+        public Graphing.RootCauseGraph Graph { get { return graph; } private set
+            {
+                if (ReferenceEquals(value, graph)) return;
+                graph = value;
+                NotifyPropertyChanged("Graph");
+            }
+        }
+        public string LayoutAlgorithmType { get; private set; }
+        public ObservableCollection<ProblemContainer> Problems { get; private set; }
         public ProblemContainer CurrentProblem { get { return currentProblem; } set
             {
-                if (object.ReferenceEquals(value, currentProblem)) return;
                 currentProblem = value;
+                if (value != null) GenerateGraph();
                 NotifyPropertyChanged("CurrentProblem");
             }
         }
         public bool IsFileOpen { get { return isFileOpen; } private set
             {
-                if (value == isFileOpen) { return; }
+                if (value == isFileOpen) return;
                 isFileOpen = value;
                 NotifyPropertyChanged("IsFileOpen");
+                NotifyPropertyChanged("CanUndo");
+                NotifyPropertyChanged("CanRedo");
+            }
+        }
+        public bool CanUndo { get { return currentProblem?.CountUndoActions() > 0; } }
+        public bool CanRedo { get { return currentProblem?.CountRedoActions() > 0; } }
+        public bool TreeIsVisible { get { return treeIsVisible; } set
+            {
+                treeIsVisible = value;
+                NotifyPropertyChanged("TreeIsVisible");
             }
         }
 
         public bool OpenFile(string path)
         {
             Path = path;
-            problems.Clear();
-            problems.AddRange(SqliteDb.GetInstance().LoadFile(path));
+            Problems.Clear();
+            SqliteDb.GetInstance().LoadFile(path).ToList().ForEach(Problems.Add);
             IsFileOpen = true;
-            NotifyPropertyChanged("Problems");
             return true;
         }
 
         public bool NewFile(string path)
         {
             Path = path;
-            problems.Clear();
+            Problems.Clear();
             bool result = SqliteDb.GetInstance().CreateNewFile(path);
             IsFileOpen = result;
             return result;
@@ -59,8 +85,40 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         public void CreateProblem(string text)
         {
             var newProblem = new CreateProblemContainer(SqliteDb.GetInstance(), text, true).Container;
-            problems.Add(newProblem);
-            NotifyPropertyChanged("Problems");
+            Problems.Add(newProblem);
+        }
+
+        public void GenerateGraph()
+        {
+            var newGraph = new Graphing.RootCauseGraph();
+            var vertices = new Dictionary<long, Graphing.RootCauseVertex>();
+            var problem = currentProblem.InitialProblem;
+            bool vertexExists;
+
+            vertices.Add(problem.NodeId, new Graphing.RootCauseVertex(problem.NodeId, problem.Text));
+            newGraph.AddVertex(vertices[problem.NodeId]);
+
+            Func<Node, bool> recurseNodes = null;
+            recurseNodes = (Node parent) =>
+            {
+                foreach (var child in parent.ChildNodes)
+                {
+                    vertexExists = vertices.ContainsKey(child.NodeId);
+
+                    if (!vertexExists)
+                    {
+                        vertices.Add(child.NodeId, new Graphing.RootCauseVertex(child.NodeId, child.Text));
+                        newGraph.AddVertex(vertices[child.NodeId]);
+                    }
+
+                    newGraph.AddEdge(new Graphing.RootCauseEdge(vertices[parent.NodeId], vertices[child.NodeId]));
+                    if (!vertexExists) recurseNodes(child);
+                }
+                return true;
+            };
+
+            recurseNodes(problem);
+            Graph = newGraph;
         }
     }
 }

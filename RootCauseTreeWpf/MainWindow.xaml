@@ -4,15 +4,38 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:com.PorcupineSupernova.RootCauseTreeWpf"
+        xmlns:graphing="clr-namespace:com.PorcupineSupernova.RootCauseTreeWpf.Graphing"
+        xmlns:graphsharp="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
+        xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
         xmlns:core="clr-namespace:com.PorcupineSupernova.RootCauseTreeCore"
         x:Class="com.PorcupineSupernova.RootCauseTreeWpf.MainWindow"
         mc:Ignorable="d"
         Title="Arborist" Height="350" Width="525" Loaded="Window_Loaded">
+    <Window.DataContext>
+        <local:MainWindowViewModel/>
+    </Window.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="128*"/>
             <ColumnDefinition Width="389*"/>
         </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Name="TreeContainer" MouseLeftButtonDown="TreeContainer_MouseLeftButtonDown" MouseLeftButtonUp="TreeContainer_MouseLeftButtonUp" MouseMove="TreeContainer_MouseMove" MouseWheel="TreeContainer_MouseWheel">
+            <Grid.Background>
+                <SolidColorBrush Color="{DynamicResource VeryLightGreen}"/>
+            </Grid.Background>
+            <Canvas Name="TreeCanvas" Visibility="{Binding Path=TreeIsVisible}">
+                <Canvas.RenderTransform>
+                    <MatrixTransform/>
+                </Canvas.RenderTransform>
+                <graphing:RootCauseGraphLayout x:Name="RootCauseLayout"
+                Graph="{Binding Path=Graph,Mode=OneWay}"
+                LayoutAlgorithmType="{Binding Path=LayoutAlgorithmType,Mode=OneWay}"
+                OverlapRemovalAlgorithmType="FSA"
+                HighlightAlgorithmType="Simple"
+                AnimationLength="0"
+            />
+            </Canvas>
+        </Grid>
         <GridSplitter Width="8">
             <GridSplitter.Background>
                 <SolidColorBrush Color="{DynamicResource LightBrown}"/>
@@ -33,46 +56,38 @@
                 <MenuItem x:Name="ExitApp" Header="_Exit Application" Click="ExitApp_Click"/>
             </MenuItem>
         </Menu>
-        <ListView x:Name="ProblemList" Margin="0,56,8,28" BorderBrush="{x:Null}" BorderThickness="0" ItemsSource="{Binding Path=Problems}" SelectedItem="{Binding Path=CurrentProblem,Mode=TwoWay}">
-            <ListView.Resources>
-                <Style TargetType="GridViewColumnHeader">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                </Style>
-            </ListView.Resources>
-            <ListView.Background>
-                <SolidColorBrush Color="{DynamicResource LightGreen}"/>
-            </ListView.Background>
-            <ListView.View>
-                <GridView AllowsColumnReorder="False">
-                    <GridViewColumn/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <Button x:Name="AddProblem" Content="New Problem" Height="28" Margin="0,0,8,0" VerticalAlignment="Bottom" BorderBrush="#FFF0F0F0" Click="AddProblem_Click" IsEnabled="{Binding IsFileOpen}">
-            <Button.Background>
-                <SolidColorBrush Color="{DynamicResource DarkGreen}"/>
-            </Button.Background>
-        </Button>
-        <Grid x:Name="Workspace" Grid.Column="1" Margin="0">
-            <Grid.Background>
-                <SolidColorBrush Color="{DynamicResource VeryLightGreen}"/>
-            </Grid.Background>
-        </Grid>
         <Grid Height="24" Margin="0,32,8,0" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button Content="Undo" Margin="0">
+            <Button Content="Undo" IsEnabled="{Binding CanUndo}">
                 <Button.Background>
                     <SolidColorBrush Color="{DynamicResource DarkBrown}"/>
                 </Button.Background>
             </Button>
-            <Button Content="Redo" Grid.Column="1" Margin="0">
+            <Button Content="Redo" Grid.Column="1" Margin="0" IsEnabled="{Binding CanRedo}">
                 <Button.Background>
                     <SolidColorBrush Color="{DynamicResource DarkBrown}"/>
                 </Button.Background>
             </Button>
         </Grid>
+        <ListBox x:Name="ProblemList" Margin="0,56,8,28" BorderBrush="{x:Null}" BorderThickness="0" ItemsSource="{Binding Path=Problems}" SelectedItem="{Binding Path=CurrentProblem,Mode=TwoWay}" SelectionMode="Single" >
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="core:MainWindowViewModel">
+                    <WrapPanel>
+                        <TextBlock Text="{Binding Path=InitialProblem.Text}" />
+                    </WrapPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.Background>
+                <SolidColorBrush Color="{DynamicResource LightGreen}"/>
+            </ListBox.Background>
+        </ListBox>
+        <Button x:Name="AddProblem" Content="New Problem" Height="28" Margin="0,0,8,0" VerticalAlignment="Bottom" BorderBrush="#FFF0F0F0" Click="AddProblem_Click" IsEnabled="{Binding IsFileOpen}">
+            <Button.Background>
+                <SolidColorBrush Color="{DynamicResource DarkGreen}"/>
+            </Button.Background>
+        </Button>
     </Grid>
 </Window>

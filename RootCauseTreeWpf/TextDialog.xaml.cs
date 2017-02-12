@@ -20,9 +20,10 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
     public partial class TextDialog : Window
     {
         public string Text { get; private set; }
-        public TextDialog(string title,string description)
+        public TextDialog(Window owner, string title,string description)
         {
             InitializeComponent();
+            Owner = owner;
             Title = title;
             Description.Text = description;
         }
@@ -43,6 +44,11 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             Text = NodeText.Text;
             DialogResult = true;
             Hide();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            NodeText.Focus();
         }
     }
 }

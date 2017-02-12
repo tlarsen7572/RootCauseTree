@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:com.PorcupineSupernova.RootCauseTreeWpf"
         mc:Ignorable="d"
-        Title="TextDialog" Width="250" ResizeMode="NoResize" SizeToContent="Height" WindowStyle="None" BorderThickness="1" BorderBrush="Black" WindowStartupLocation="CenterOwner">
+        Title="TextDialog" Width="250" ResizeMode="NoResize" SizeToContent="Height" WindowStyle="None" BorderThickness="1" BorderBrush="Black" WindowStartupLocation="CenterOwner" Loaded="Window_Loaded">
     <Grid Margin="0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
