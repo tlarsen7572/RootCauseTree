@@ -31,6 +31,8 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private double scaleFactor = 1.2;
         private bool leftMouseDragged = false;
         private Point lastMousePos;
+        private double MaxScale = 3;
+        private double MinScale = 0.3;
 
         public MainWindow()
         {
@@ -70,7 +72,10 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             var position = e.GetPosition(TreeCanvas);
             var transform = TreeCanvas.RenderTransform as MatrixTransform;
             var matrix = transform.Matrix;
+
             var scale = e.Delta >= 0 ? scaleFactor : (1.0 / scaleFactor);
+            var newScaleFactor = matrix.M11 * scale;
+            if (!(newScaleFactor < MaxScale && newScaleFactor > MinScale)) return;
 
             matrix.ScaleAtPrepend(scale, scale, position.X, position.Y);
             transform.Matrix = matrix;
@@ -118,6 +123,22 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             transform.Matrix = matrix;
             lastMousePos = position;
             TreeCanvas.UpdateLayout();
+        }
+
+        private void ProblemList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            TreeCanvas.Margin = new Thickness(ProblemList.ActualWidth + 50, 50, 0, 0);
+            TreeCanvas.RenderTransform = new MatrixTransform();
+        }
+
+        private void Node_Click(object sender,RoutedEventArgs e)
+        {
+            var dataItem = ((FrameworkElement)sender).DataContext as Graphing.RootCauseVertex;
+            var textDlg = new TextDialog(this, "Add Cause", "Enter a new causal statement.");
+            if (textDlg.ShowDialog().Value)
+            {
+                vm.CreateChildNode(textDlg.Text,dataItem.Source);
+            }
         }
     }
 }

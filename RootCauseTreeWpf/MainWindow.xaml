@@ -10,10 +10,31 @@
         xmlns:core="clr-namespace:com.PorcupineSupernova.RootCauseTreeCore"
         x:Class="com.PorcupineSupernova.RootCauseTreeWpf.MainWindow"
         mc:Ignorable="d"
-        Title="Arborist" Height="350" Width="525" Loaded="Window_Loaded">
+        Title="Arborist" Height="350" Width="525" Loaded="Window_Loaded" WindowState="Maximized">
     <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
+    <Window.Resources>
+        <DataTemplate x:Key="VertexContent" DataType="{x:Type graphing:RootCauseVertex}">
+            <Grid Margin="2" MaxWidth="200">
+                <Button Margin="0,0,0,0" Click="Node_Click">
+                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Text}"/>
+                </Button>
+                <Button x:Name="GetContextMenu" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="{x:Null}" Background="#FFD4D4D4">
+                    <TextBlock Text="&#xE0C2;" FontFamily="Segoe UI Symbol"/>
+                </Button>
+            </Grid>
+        </DataTemplate>
+        <Style TargetType="{x:Type graphsharp:VertexControl}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type graphsharp:VertexControl}">
+                        <ContentPresenter Content="{TemplateBinding Vertex}" ContentTemplate="{StaticResource VertexContent}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="128*"/>
@@ -23,7 +44,7 @@
             <Grid.Background>
                 <SolidColorBrush Color="{DynamicResource VeryLightGreen}"/>
             </Grid.Background>
-            <Canvas Name="TreeCanvas" Visibility="{Binding Path=TreeIsVisible}">
+            <Canvas Name="TreeCanvas">
                 <Canvas.RenderTransform>
                     <MatrixTransform/>
                 </Canvas.RenderTransform>
@@ -36,7 +57,7 @@
             />
             </Canvas>
         </Grid>
-        <GridSplitter Width="8">
+        <GridSplitter Width="8" Name="Splitter">
             <GridSplitter.Background>
                 <SolidColorBrush Color="{DynamicResource LightBrown}"/>
             </GridSplitter.Background>
@@ -72,7 +93,7 @@
                 </Button.Background>
             </Button>
         </Grid>
-        <ListBox x:Name="ProblemList" Margin="0,56,8,28" BorderBrush="{x:Null}" BorderThickness="0" ItemsSource="{Binding Path=Problems}" SelectedItem="{Binding Path=CurrentProblem,Mode=TwoWay}" SelectionMode="Single" >
+        <ListBox x:Name="ProblemList" Margin="0,56,8,28" BorderBrush="{x:Null}" BorderThickness="0" ItemsSource="{Binding Path=Problems}" SelectedItem="{Binding Path=CurrentProblem,Mode=TwoWay}" SelectionMode="Single" SelectionChanged="ProblemList_SelectionChanged" >
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="core:MainWindowViewModel">
                     <WrapPanel>

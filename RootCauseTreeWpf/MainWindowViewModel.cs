@@ -48,7 +48,6 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         }
         public bool IsFileOpen { get { return isFileOpen; } private set
             {
-                if (value == isFileOpen) return;
                 isFileOpen = value;
                 NotifyPropertyChanged("IsFileOpen");
                 NotifyPropertyChanged("CanUndo");
@@ -70,6 +69,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             Problems.Clear();
             SqliteDb.GetInstance().LoadFile(path).ToList().ForEach(Problems.Add);
             IsFileOpen = true;
+            Graph = new Graphing.RootCauseGraph();
             return true;
         }
 
@@ -86,6 +86,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         {
             var newProblem = new CreateProblemContainer(SqliteDb.GetInstance(), text, true).Container;
             Problems.Add(newProblem);
+            CurrentProblem = newProblem;
         }
 
         public void GenerateGraph()
@@ -95,7 +96,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             var problem = currentProblem.InitialProblem;
             bool vertexExists;
 
-            vertices.Add(problem.NodeId, new Graphing.RootCauseVertex(problem.NodeId, problem.Text));
+            vertices.Add(problem.NodeId, new Graphing.RootCauseVertex(problem));
             newGraph.AddVertex(vertices[problem.NodeId]);
 
             Func<Node, bool> recurseNodes = null;
@@ -107,7 +108,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
                     if (!vertexExists)
                     {
-                        vertices.Add(child.NodeId, new Graphing.RootCauseVertex(child.NodeId, child.Text));
+                        vertices.Add(child.NodeId, new Graphing.RootCauseVertex(child));
                         newGraph.AddVertex(vertices[child.NodeId]);
                     }
 
@@ -119,6 +120,13 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
             recurseNodes(problem);
             Graph = newGraph;
+        }
+
+        public void CreateChildNode(string text,Node parent)
+        {
+            currentProblem.AddAction(new AddNodeCommand(SqliteDb.GetInstance(), parent, text));
+            GenerateGraph();
+            NotifyPropertyChanged("CanUndo");
         }
     }
 }

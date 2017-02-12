@@ -1,14 +1,20 @@
-﻿namespace com.PorcupineSupernova.RootCauseTreeWpf.Graphing
+﻿using com.PorcupineSupernova.RootCauseTreeCore;
+
+namespace com.PorcupineSupernova.RootCauseTreeWpf.Graphing
 {
     class RootCauseVertex
     {
-        public long Id { get; private set; }
-        public string Text { get; private set; }
+        private string text;
 
-        public RootCauseVertex(long id, string text)
+        public long Id { get; private set; }
+        public string Text { get { return string.Concat("      ", text); } private set { text = value; } }
+        public Node Source { get; private set; }
+
+        public RootCauseVertex(Node source)
         {
-            Id = id;
-            Text = text;
+            Id = source.NodeId;
+            Text = source.Text;
+            Source = source;
         }
 
         public override string ToString()
