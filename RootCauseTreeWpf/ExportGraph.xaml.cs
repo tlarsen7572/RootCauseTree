@@ -126,5 +126,17 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             }
             NotifyPropertyChanged("MinMaxState");
         }
+
+        private void PrintFile_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new PrintDialog();
+            var result = dlg.ShowDialog();
+            if (result.HasValue && result.Value)
+            {
+                TreeGrid.Measure(new Size(dlg.PrintableAreaWidth,dlg.PrintableAreaHeight));
+                TreeGrid.Arrange(new Rect(new Point(0, 0), TreeGrid.DesiredSize));
+                dlg.PrintVisual(TreeGrid, "Root Cause Tree");
+            }
+        }
     }
 }

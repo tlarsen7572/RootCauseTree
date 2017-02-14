@@ -192,5 +192,24 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             exportWindow.ShowDialog();
             return;
         }
+
+        private void DeleteProblem_Click(object sender, RoutedEventArgs e)
+        {
+            var answer = MessageBox.Show("Are you sure you want to delete the entire root cause tree?  This action cannot be undone.", "Caution", MessageBoxButton.YesNo);
+            if (answer == MessageBoxResult.Yes)
+            {
+                vm.DeleteProblem();
+            }
+        }
+
+        private void DeleteCauseChain_Click(object sender, RoutedEventArgs e)
+        {
+            vm.DeleteCauseChain(contextMenuNode);
+        }
+
+        private void DeleteCause_Click(object sender, RoutedEventArgs e)
+        {
+            vm.DeleteCause(contextMenuNode);
+        }
     }
 }

@@ -17,6 +17,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         public Graphing.RootCauseGraph GenerateGraph(Node node)
         {
             var newGraph = new Graphing.RootCauseGraph();
+            if (node == null) return newGraph;
             var vertices = new Dictionary<long, Graphing.RootCauseVertex>();
             var problem = node;
             bool vertexExists;

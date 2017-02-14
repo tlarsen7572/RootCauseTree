@@ -87,21 +87,17 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         public void GenerateGraph()
         {
-            Graph = app.GenerateGraph(CurrentProblem.InitialProblem);
+            Graph = app.GenerateGraph(CurrentProblem?.InitialProblem);
         }
 
         public void CreateChildNode(string text,Node parent)
         {
-            currentProblem.AddAction(new AddNodeCommand(SqliteDb.GetInstance(), parent, text));
-            GenerateGraph();
-            NotifyUndoRedo();
+            ExecuteCommand(new AddNodeCommand(SqliteDb.GetInstance(), parent, text));
         }
 
         public void EditNodeText(string text,Node parent)
         {
-            currentProblem.AddAction(new ChangeNodeTextCommand(SqliteDb.GetInstance(), parent, text));
-            GenerateGraph();
-            NotifyUndoRedo();
+            ExecuteCommand(new ChangeNodeTextCommand(SqliteDb.GetInstance(), parent, text));
         }
 
         public void Undo()
@@ -114,6 +110,31 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         public void Redo()
         {
             currentProblem.Redo();
+            GenerateGraph();
+            NotifyUndoRedo();
+        }
+
+        public void DeleteProblem()
+        {
+            new RemoveNodeChainCommand(SqliteDb.GetInstance(), currentProblem.InitialProblem,true);
+            Problems.Remove(currentProblem);
+            currentProblem = null;
+            GenerateGraph();
+        }
+
+        public void DeleteCause(Node node)
+        {
+            ExecuteCommand(new RemoveNodeCommand(SqliteDb.GetInstance(), node));
+        }
+
+        public void DeleteCauseChain(Node node)
+        {
+            ExecuteCommand(new RemoveNodeChainCommand(SqliteDb.GetInstance(), node));
+        }
+
+        private void ExecuteCommand(IRootCauseCommand command)
+        {
+            CurrentProblem.AddAction(command);
             GenerateGraph();
             NotifyUndoRedo();
         }

@@ -42,15 +42,16 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Menu Background="{x:Null}" Height="28">
+        <Menu Background="{x:Null}" FontSize="{StaticResource IconFontSize}" FontFamily="{StaticResource IconFontFamily}">
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
                     <DockPanel LastChildFill="True" HorizontalAlignment="Stretch"/>
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
-            <MenuItem x:Name="SaveFile" DockPanel.Dock="Left" FontFamily="Segoe UI Symbol" Header="&#xE105;" HorizontalAlignment="Left" Click="SaveFile_Click"/>
-            <MenuItem x:Name="CloseWindow" DockPanel.Dock="Right" FontFamily="Segoe UI Symbol" Header="&#xE10A;" HorizontalAlignment="Right" Click="CloseWindow_Click"/>
-            <MenuItem x:Name="MinMaxWindow" DockPanel.Dock="Right" FontFamily="Segoe UI Symbol" Header="{Binding Path=MinMaxState}" HorizontalAlignment="Right" Click="MinMaxWindow_Click"/>
+            <MenuItem x:Name="PrintFile" DockPanel.Dock="Left" Header="&#x2399;" HorizontalAlignment="Left" Click="PrintFile_Click"/>
+            <MenuItem x:Name="SaveFile" DockPanel.Dock="Left" Header="&#xE105;" HorizontalAlignment="Left" Click="SaveFile_Click"/>
+            <MenuItem x:Name="CloseWindow" DockPanel.Dock="Right" Header="&#xE10A;" HorizontalAlignment="Right" Click="CloseWindow_Click"/>
+            <MenuItem x:Name="MinMaxWindow" DockPanel.Dock="Right" Header="{Binding Path=MinMaxState}" HorizontalAlignment="Right" Click="MinMaxWindow_Click"/>
         </Menu>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
             <ScrollViewer.Background>
