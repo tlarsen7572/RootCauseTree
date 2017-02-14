@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace com.PorcupineSupernova.RootCauseTreeCore
 {
-    abstract class Node
+    public abstract class Node : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged(string property)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+
         private long _NodeId;
         private string _Text;
         private SortedDictionary<long,Node> _ChildNodes;
@@ -41,6 +48,7 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             if (!_ChildNodes.ContainsKey(node.NodeId))
             {
                 _ChildNodes.Add(node.NodeId, node);
+                NotifyPropertyChanged("ChildNodes");
             }
         }
 
@@ -49,22 +57,26 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             if (!_ParentNodes.ContainsKey(node.NodeId))
             {
                 _ParentNodes.Add(node.NodeId, node);
+                NotifyPropertyChanged("ParentNodes");
             }
         }
 
         internal protected void RemoveChild(Node node)
         {
             _ChildNodes.Remove(node.NodeId);
+            NotifyPropertyChanged("ChildNodes");
         }
 
         internal protected void RemoveParent(Node node)
         {
             _ParentNodes.Remove(node.NodeId);
+            NotifyPropertyChanged("ParentNodes");
         }
 
         internal protected void SetText(string newText)
         {
             _Text = newText;
+            NotifyPropertyChanged("Text");
         }
     }
 }

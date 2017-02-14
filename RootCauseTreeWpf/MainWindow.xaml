@@ -10,17 +10,31 @@
         xmlns:core="clr-namespace:com.PorcupineSupernova.RootCauseTreeCore"
         x:Class="com.PorcupineSupernova.RootCauseTreeWpf.MainWindow"
         mc:Ignorable="d"
-        Title="Arborist" Height="350" Width="525" Loaded="Window_Loaded" WindowState="Maximized">
+        Title="Arborist" Height="350" Width="525" Loaded="Window_Loaded" WindowState="Maximized" ResizeMode="CanResizeWithGrip">
     <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
     <Window.Resources>
+        <ContextMenu x:Key="ProblemMenu">
+            <MenuItem Header="Edit Text" Click="EditNodeText_Click"/>
+            <MenuItem Header="Add Link"/>
+            <MenuItem Header="Delete Problem"/>
+        </ContextMenu>
+        <ContextMenu x:Key="CauseMenu">
+            <MenuItem Header="Edit Text" Click="EditNodeText_Click"/>
+            <MenuItem Header="Add Link"/>
+            <MenuItem Header="Delete Cause"/>
+            <MenuItem Header="Delete Cause Chain"/>
+        </ContextMenu>
+        <ContextMenu x:Key="LinkMenu">
+            <MenuItem Header="RemoveLink"/>
+        </ContextMenu>
         <DataTemplate x:Key="VertexContent" DataType="{x:Type graphing:RootCauseVertex}">
             <Grid Margin="2" MaxWidth="200">
-                <Button Margin="0,0,0,0" Click="Node_Click">
-                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Text}"/>
+                <Button Margin="0,0,0,0" Click="Node_Click" Padding="3">
+                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Text,StringFormat={}      {0}}"/>
                 </Button>
-                <Button x:Name="GetContextMenu" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="{x:Null}" Background="#FFD4D4D4">
+                <Button x:Name="GetContextMenu" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="{x:Null}" Background="#FFD4D4D4" Click="OpenNodeMenu_Click">
                     <TextBlock Text="&#xE0C2;" FontFamily="Segoe UI Symbol"/>
                 </Button>
             </Grid>
@@ -37,8 +51,8 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="128*"/>
-            <ColumnDefinition Width="389*"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Name="TreeContainer" MouseLeftButtonDown="TreeContainer_MouseLeftButtonDown" MouseLeftButtonUp="TreeContainer_MouseLeftButtonUp" MouseMove="TreeContainer_MouseMove" MouseWheel="TreeContainer_MouseWheel">
             <Grid.Background>
@@ -50,7 +64,7 @@
                 </Canvas.RenderTransform>
                 <graphing:RootCauseGraphLayout x:Name="RootCauseLayout"
                 Graph="{Binding Path=Graph,Mode=OneWay}"
-                LayoutAlgorithmType="{Binding Path=LayoutAlgorithmType,Mode=OneWay}"
+                LayoutAlgorithmType="Tree"
                 OverlapRemovalAlgorithmType="FSA"
                 HighlightAlgorithmType="Simple"
                 AnimationLength="0"
@@ -74,6 +88,7 @@
             <MenuItem Header="_Menu">
                 <MenuItem x:Name="NewFile" Cursor="" Header="_New" Click="NewFile_Click"/>
                 <MenuItem x:Name="OpenFile" Header="_Open" Click="OpenFile_Click"/>
+                <MenuItem x:Name="SaveImage" Header="_Save Tree Image" Click="SaveImage_Click" IsEnabled="{Binding CanSaveImage}"/>
                 <MenuItem x:Name="ExitApp" Header="_Exit Application" Click="ExitApp_Click"/>
             </MenuItem>
         </Menu>
@@ -82,12 +97,12 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button Content="Undo" IsEnabled="{Binding CanUndo}">
+            <Button IsEnabled="{Binding CanUndo}" FontFamily="Segoe UI Symbol" Content="&#xE10E;" Click="Undo_Click" >
                 <Button.Background>
                     <SolidColorBrush Color="{DynamicResource DarkBrown}"/>
                 </Button.Background>
             </Button>
-            <Button Content="Redo" Grid.Column="1" Margin="0" IsEnabled="{Binding CanRedo}">
+            <Button Grid.Column="1" Margin="0" Content="&#xE10D;" FontFamily="Segoe UI Symbol" IsEnabled="{Binding CanRedo}" Click="Redo_Click">
                 <Button.Background>
                     <SolidColorBrush Color="{DynamicResource DarkBrown}"/>
                 </Button.Background>
@@ -105,7 +120,7 @@
                 <SolidColorBrush Color="{DynamicResource LightGreen}"/>
             </ListBox.Background>
         </ListBox>
-        <Button x:Name="AddProblem" Content="New Problem" Height="28" Margin="0,0,8,0" VerticalAlignment="Bottom" BorderBrush="#FFF0F0F0" Click="AddProblem_Click" IsEnabled="{Binding IsFileOpen}">
+        <Button x:Name="AddProblem" FontFamily="Segoe UI Symbol" Content="&#xE109; Problem" Height="28" Margin="0,0,8,0" VerticalAlignment="Bottom" BorderBrush="#FFF0F0F0" Click="AddProblem_Click" IsEnabled="{Binding IsFileOpen}">
             <Button.Background>
                 <SolidColorBrush Color="{DynamicResource DarkGreen}"/>
             </Button.Background>

@@ -98,6 +98,9 @@
     <Compile Include="Graphing\RootCauseGraphLayout.cs" />
     <Compile Include="Graphing\RootCauseVertex.cs" />
     <Compile Include="MainWindowViewModel.cs" />
+    <Compile Include="ExportGraph.xaml.cs">
+      <DependentUpon>ExportGraph.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TextDialog.xaml.cs">
       <DependentUpon>TextDialog.xaml</DependentUpon>
     </Compile>
@@ -113,6 +116,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ExportGraph.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="TextDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

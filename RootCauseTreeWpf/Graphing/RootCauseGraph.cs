@@ -7,7 +7,7 @@ using QuickGraph;
 
 namespace com.PorcupineSupernova.RootCauseTreeWpf.Graphing
 {
-    class RootCauseGraph : BidirectionalGraph<RootCauseVertex,RootCauseEdge>
+    public class RootCauseGraph : BidirectionalGraph<RootCauseVertex,RootCauseEdge>
     {
         public RootCauseGraph() : base() { }
     }

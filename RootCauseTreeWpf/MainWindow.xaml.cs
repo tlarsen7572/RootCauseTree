@@ -26,13 +26,14 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         MainWindowViewModel vm;
         private OpenFileDialog openFileDlg = new OpenFileDialog();
         private SaveFileDialog newFileDlg = new SaveFileDialog();
-        private string fileFilter = "Root Cause Files|*.rootcause";
-        private string defaultExt = ".rootcause";
+        private string rootCauseFilter = "Root Cause Files|*.rootcause";
+        private string rootCauseExt = ".rootcause";
         private double scaleFactor = 1.2;
         private bool leftMouseDragged = false;
         private Point lastMousePos;
         private double MaxScale = 3;
         private double MinScale = 0.3;
+        private Node contextMenuNode;
 
         public MainWindow()
         {
@@ -52,6 +53,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
                 vm.OpenFile(openFileDlg.FileName);
                 Title = $"Arborist: {openFileDlg.SafeFileName}";
             }
+            openFileDlg.FileName = string.Empty;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -59,12 +61,17 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             vm = DataContext as MainWindowViewModel;
 
             openFileDlg.Multiselect = false;
-            openFileDlg.DefaultExt = defaultExt;
-            openFileDlg.Filter = fileFilter;
-            newFileDlg.CheckPathExists = true;
-            newFileDlg.DefaultExt = defaultExt;
-            newFileDlg.Filter = fileFilter;
-            newFileDlg.AddExtension = true;
+            openFileDlg.DefaultExt = rootCauseExt;
+            openFileDlg.Filter = rootCauseFilter;
+            SetUpSaveDialog(newFileDlg, rootCauseExt, rootCauseFilter);
+        }
+
+        private void SetUpSaveDialog(SaveFileDialog dlg,string extension,string filter)
+        {
+            dlg.CheckPathExists = true;
+            dlg.DefaultExt = extension;
+            dlg.Filter = filter;
+            dlg.AddExtension = true;
         }
 
         private void TreeContainer_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -90,6 +97,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
                 vm.NewFile(newFileDlg.FileName);
                 Title = $"Arborist: {newFileDlg.SafeFileName}";
             }
+            newFileDlg.FileName = string.Empty;
         }
 
         private void AddProblem_Click(object sender, RoutedEventArgs e)
@@ -133,12 +141,56 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void Node_Click(object sender,RoutedEventArgs e)
         {
-            var dataItem = ((FrameworkElement)sender).DataContext as Graphing.RootCauseVertex;
+            contextMenuNode = (((FrameworkElement)sender).DataContext as Graphing.RootCauseVertex).Source;
             var textDlg = new TextDialog(this, "Add Cause", "Enter a new causal statement.");
             if (textDlg.ShowDialog().Value)
             {
-                vm.CreateChildNode(textDlg.Text,dataItem.Source);
+                vm.CreateChildNode(textDlg.Text,contextMenuNode);
             }
+        }
+
+        private void OpenNodeMenu_Click(object sender,RoutedEventArgs e)
+        {
+            contextMenuNode = (((FrameworkElement)sender).DataContext as Graphing.RootCauseVertex).Source;
+            ContextMenu menu;
+            if (contextMenuNode is Problem)
+            {
+                menu = FindResource("ProblemMenu") as ContextMenu;
+            }
+            else
+            {
+                menu = FindResource("CauseMenu") as ContextMenu;
+            }
+            menu.PlacementTarget = sender as Button;
+            menu.IsOpen = true;
+        }
+
+        private void EditNodeText_Click(object sender, RoutedEventArgs e)
+        {
+            var textDlg = new TextDialog(this, "Edit Text", "Edit text.");
+            textDlg.NodeText.Text = contextMenuNode.Text;
+            if (textDlg.ShowDialog().Value)
+            {
+                vm.EditNodeText(textDlg.Text, contextMenuNode);
+            }
+        }
+
+        private void Undo_Click(object sender, RoutedEventArgs e)
+        {
+            vm.Undo();
+        }
+
+        private void Redo_Click(object sender, RoutedEventArgs e)
+        {
+            vm.Redo();
+        }
+
+        private void SaveImage_Click(object sender, RoutedEventArgs e)
+        {
+            var exportWindow = new ExportGraph(vm.CurrentProblem.InitialProblem);
+            exportWindow.Owner = this;
+            exportWindow.ShowDialog();
+            return;
         }
     }
 }

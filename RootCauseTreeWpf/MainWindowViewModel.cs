@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using com.PorcupineSupernova.RootCauseTreeCore;
+using System.Windows;
 
 namespace com.PorcupineSupernova.RootCauseTreeWpf
 {
@@ -21,14 +22,14 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         {
             Problems = new ObservableCollection<ProblemContainer>();
             Graph = new Graphing.RootCauseGraph();
-            LayoutAlgorithmType = "Tree";
+            app = (App)Application.Current;
         }
 
+        private App app;
         private string Path;
         private bool isFileOpen;
         private ProblemContainer currentProblem;
         private Graphing.RootCauseGraph graph;
-        private bool treeIsVisible;
 
         public Graphing.RootCauseGraph Graph { get { return graph; } private set
             {
@@ -43,25 +44,20 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             {
                 currentProblem = value;
                 if (value != null) GenerateGraph();
-                NotifyPropertyChanged("CurrentProblem");
+                NotifyCurrentProblemChanged();
             }
         }
+
         public bool IsFileOpen { get { return isFileOpen; } private set
             {
                 isFileOpen = value;
                 NotifyPropertyChanged("IsFileOpen");
-                NotifyPropertyChanged("CanUndo");
-                NotifyPropertyChanged("CanRedo");
+                NotifyUndoRedo();
             }
         }
         public bool CanUndo { get { return currentProblem?.CountUndoActions() > 0; } }
         public bool CanRedo { get { return currentProblem?.CountRedoActions() > 0; } }
-        public bool TreeIsVisible { get { return treeIsVisible; } set
-            {
-                treeIsVisible = value;
-                NotifyPropertyChanged("TreeIsVisible");
-            }
-        }
+        public bool CanSaveImage { get { return currentProblem != null; } }
 
         public bool OpenFile(string path)
         {
@@ -91,42 +87,48 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         public void GenerateGraph()
         {
-            var newGraph = new Graphing.RootCauseGraph();
-            var vertices = new Dictionary<long, Graphing.RootCauseVertex>();
-            var problem = currentProblem.InitialProblem;
-            bool vertexExists;
-
-            vertices.Add(problem.NodeId, new Graphing.RootCauseVertex(problem));
-            newGraph.AddVertex(vertices[problem.NodeId]);
-
-            Func<Node, bool> recurseNodes = null;
-            recurseNodes = (Node parent) =>
-            {
-                foreach (var child in parent.ChildNodes)
-                {
-                    vertexExists = vertices.ContainsKey(child.NodeId);
-
-                    if (!vertexExists)
-                    {
-                        vertices.Add(child.NodeId, new Graphing.RootCauseVertex(child));
-                        newGraph.AddVertex(vertices[child.NodeId]);
-                    }
-
-                    newGraph.AddEdge(new Graphing.RootCauseEdge(vertices[parent.NodeId], vertices[child.NodeId]));
-                    if (!vertexExists) recurseNodes(child);
-                }
-                return true;
-            };
-
-            recurseNodes(problem);
-            Graph = newGraph;
+            Graph = app.GenerateGraph(CurrentProblem.InitialProblem);
         }
 
         public void CreateChildNode(string text,Node parent)
         {
             currentProblem.AddAction(new AddNodeCommand(SqliteDb.GetInstance(), parent, text));
             GenerateGraph();
+            NotifyUndoRedo();
+        }
+
+        public void EditNodeText(string text,Node parent)
+        {
+            currentProblem.AddAction(new ChangeNodeTextCommand(SqliteDb.GetInstance(), parent, text));
+            GenerateGraph();
+            NotifyUndoRedo();
+        }
+
+        public void Undo()
+        {
+            currentProblem.Undo();
+            GenerateGraph();
+            NotifyUndoRedo();
+        }
+
+        public void Redo()
+        {
+            currentProblem.Redo();
+            GenerateGraph();
+            NotifyUndoRedo();
+        }
+
+        private void NotifyUndoRedo()
+        {
             NotifyPropertyChanged("CanUndo");
+            NotifyPropertyChanged("CanRedo");
+        }
+
+        private void NotifyCurrentProblemChanged()
+        {
+            NotifyPropertyChanged("CurrentProblem");
+            NotifyPropertyChanged("CanSaveImage");
+            NotifyUndoRedo();
         }
     }
 }
