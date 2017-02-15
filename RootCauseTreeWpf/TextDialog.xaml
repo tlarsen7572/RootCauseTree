@@ -13,18 +13,20 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="52"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBox x:Name="NodeText" Grid.ColumnSpan="2" Margin="4" Grid.Row="1" TextWrapping="Wrap" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
-        <TextBlock x:Name="Description" Grid.ColumnSpan="2" Margin="4" TextWrapping="Wrap" Text="Description" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
-        <Button x:Name="Submit" Content="Submit" Margin="4" Grid.Row="3" IsDefault="True" Click="Submit_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
-        <Button x:Name="Cancel" Content="Cancel" Grid.Column="1" Margin="4" Grid.Row="3" IsCancel="True" Click="Cancel_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
-        <TextBlock x:Name="Error" Grid.ColumnSpan="2" Margin="4" Grid.Row="2" TextWrapping="Wrap" FontSize="9 pt" FontFamily="{StaticResource DefaultFontFamily}">
+        <TextBlock x:Name="Description1" Grid.ColumnSpan="2" Margin="4" TextWrapping="Wrap" Text="Description" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
+        <TextBlock x:Name="Description2" Grid.ColumnSpan="2" Margin="4,0,4,4" Grid.Row="1" TextWrapping="Wrap" Text="Description" HorizontalAlignment="Center"/>
+        <TextBox x:Name="NodeText" Grid.ColumnSpan="2" Margin="4" Grid.Row="2" TextWrapping="Wrap" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
+        <TextBlock x:Name="Error" Grid.ColumnSpan="2" Margin="4" Grid.Row="3" TextWrapping="Wrap" FontSize="9 pt" FontFamily="{StaticResource DefaultFontFamily}">
             <TextBlock.Foreground>
                 <SolidColorBrush Color="{StaticResource ErrorMsgText}"/>
             </TextBlock.Foreground>
         </TextBlock>
+        <Button x:Name="Submit" Content="Submit" Margin="4" Grid.Row="3" IsDefault="True" Click="Submit_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
+        <Button x:Name="Cancel" Content="Cancel" Grid.Column="1" Margin="4" Grid.Row="3" IsCancel="True" Click="Cancel_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
     </Grid>
 </Window>

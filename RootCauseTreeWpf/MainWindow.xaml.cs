@@ -161,7 +161,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             }
             else
             {
-                var textDlg = new TextDialog(this, "Add Cause", "Enter a new causal statement.");
+                var textDlg = new TextDialog(this, "Add Cause", $"{contextMenuNode.Text}\n", "Is caused by \uE019      Therefore \uE018");
                 if (textDlg.ShowDialog().Value)
                 {
                     vm.CreateChildNode(textDlg.Text, contextMenuNode);
@@ -216,7 +216,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void EditNodeText_Click(object sender, RoutedEventArgs e)
         {
-            var textDlg = new TextDialog(this, "Edit Text", "Edit text.");
+            var textDlg = new TextDialog(this, "Edit Text", $"Old text:\n{contextMenuNode.Text}\n\nNew text:");
             textDlg.NodeText.Text = contextMenuNode.Text;
             if (textDlg.ShowDialog().Value)
             {
