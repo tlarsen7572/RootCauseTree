@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Data.SQLite;
 
 namespace com.PorcupineSupernova.RootCauseTreeCore
@@ -28,7 +28,13 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         public IEnumerable<ProblemContainer> LoadFile(string path)
         {
             CurrentFile = path;
-            List<ProblemContainer> problems = new List<ProblemContainer>();
+
+            if (!IsSchemaCorrect())
+            {
+                throw new InvalidRootCauseFileException();
+            }
+
+            List < ProblemContainer > problems = new List<ProblemContainer>();
             HashSet<long[]> hierarchy = new HashSet<long[]>();
             Dictionary<long, Node> nodes = new Dictionary<long, Node>();
             ProblemContainer problem;
@@ -404,7 +410,23 @@ CREATE TABLE hierarchy (parentid BIGINT, childid BIGINT, PRIMARY KEY (parentid, 
             var conn = new SQLiteConnection(connStr);
             conn.Open();
             var command = conn.CreateCommand();
-            command.Transaction = conn.BeginTransaction();
+            try
+            {
+                command.Transaction = conn.BeginTransaction();
+            }
+            catch (SQLiteException)
+            {
+                command.Dispose();
+                conn.Close();
+                conn.Dispose();
+                throw new InvalidRootCauseFileException();
+            }
+            catch (Exception)
+            {
+                command.Dispose();
+                conn.Close();
+                conn.Dispose();
+            }
             return command;
         }
 
@@ -437,6 +459,61 @@ DELETE FROM hierarchy WHERE parentid IN t_orphans;";
             command.Transaction.Dispose();
             command.Connection.Dispose();
             command.Dispose();
+        }
+
+        private bool IsSchemaCorrect()
+        {
+            var columns = new List<string>();
+            var command = CreateNewCommand();
+            command.CommandText =
+@"PRAGMA table_info('nodes');
+PRAGMA table_info('hierarchy');
+PRAGMA table_info('toplevel');";
+
+            SQLiteDataReader reader;
+            try
+            {
+                reader = command.ExecuteReader();
+            }
+            catch (SQLiteException)
+            {
+                throw new InvalidRootCauseFileException();
+            }
+            finally
+            {
+                command.Dispose();
+            }
+
+            while (reader.Read())
+            {
+                columns.Add($"nodes.{reader["name"].ToString()}");
+            }
+
+            reader.NextResult();
+            while (reader.Read())
+            {
+                columns.Add($"hierarchy.{reader["name"].ToString()}");
+            }
+
+            reader.NextResult();
+            while (reader.Read())
+            {
+                columns.Add($"toplevel.{reader["name"].ToString()}");
+            }
+            CommitAndCleanUp(command);
+
+            var schema = new string[]
+            {
+                "nodes.nodeid",
+                "nodes.nodetext",
+                "hierarchy.parentid",
+                "hierarchy.childid",
+                "toplevel.nodeid"
+            };
+            IEnumerable<string> validColumns = from column in columns
+                                               where schema.Contains(column)
+                                               select column;
+            return validColumns.Count() == schema.Length;
         }
     }
 }

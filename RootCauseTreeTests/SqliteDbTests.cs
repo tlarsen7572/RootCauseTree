@@ -23,6 +23,8 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             //Run tests sequentially
             //These tests are run sequentially because they will be using the same disk file
             //The tests are not interdependent on each other; the disk file is overwritten with each new test
+            OpenEmptyFile();
+            OpenInvalidFile();
             TestCreateNewFile();
             TestCreateProblemStatement();
             TestCreateNewNode();
@@ -42,6 +44,30 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         }
 
         //TESTS
+        private void OpenEmptyFile()
+        {
+            try
+            {
+                SqliteDb.GetInstance().LoadFile("EmptyFile.rootcause");
+            }
+            catch (InvalidRootCauseFileException)
+            {
+                return;
+            }
+        }
+
+        private void OpenInvalidFile()
+        {
+            try
+            {
+                SqliteDb.GetInstance().LoadFile("InvalidFile.rootcause");
+            }
+            catch (InvalidRootCauseFileException)
+            {
+                return;
+            }
+        }
+
         private void TestLoadFile()
         {
             CreateComplexModelForTest();

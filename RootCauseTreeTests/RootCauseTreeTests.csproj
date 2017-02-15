@@ -69,7 +69,13 @@
     <Compile Include="SqliteDbTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="EmptyFile.rootcause">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="IdGenHelp.chm" />
+    <None Include="InvalidFile.rootcause">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

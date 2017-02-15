@@ -28,5 +28,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Problem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SequentialGuid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SqliteDb.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SqliteDbExceptions.cs" />
   </ItemGroup>
 </Project>

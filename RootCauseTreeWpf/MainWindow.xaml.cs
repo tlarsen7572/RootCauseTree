@@ -53,7 +53,14 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             bool? didOpen = openFileDlg.ShowDialog();
             if (didOpen.HasValue && didOpen.Value == true)
             {
-                vm.OpenFile(openFileDlg.FileName);
+                try
+                {
+                    vm.OpenFile(openFileDlg.FileName);
+                }
+                catch (InvalidRootCauseFileException)
+                {
+                    MessageBox.Show("The selected file does not appear to be a valid root cause tree.  Please select a different file.","Invalid File");
+                }
                 Title = $"Arborist: {openFileDlg.SafeFileName}";
             }
             openFileDlg.FileName = string.Empty;
