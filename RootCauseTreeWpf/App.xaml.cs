@@ -14,6 +14,13 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
     /// </summary>
     public partial class App : Application
     {
+        internal GraphSharp.Algorithms.Layout.Simple.Tree.SimpleTreeLayoutParameters algs;
+
+        public App()
+        {
+            algs = new GraphSharp.Algorithms.Layout.Simple.Tree.SimpleTreeLayoutParameters();
+        }
+
         public Graphing.RootCauseGraph GenerateGraph(Node node)
         {
             var newGraph = new Graphing.RootCauseGraph();

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:com.PorcupineSupernova.RootCauseTreeWpf"
         mc:Ignorable="d"
-        Title="TextDialog" Width="250" ResizeMode="NoResize" SizeToContent="Height" WindowStyle="None" BorderThickness="1" BorderBrush="Black" WindowStartupLocation="CenterOwner" Loaded="Window_Loaded">
+        Title="TextDialog" Width="250" ResizeMode="NoResize" ShowInTaskbar="False" SizeToContent="Height" WindowStyle="None" BorderThickness="1" BorderBrush="Black" WindowStartupLocation="CenterOwner" Loaded="Window_Loaded" Style="{StaticResource DefaultFont}">
     <Grid Margin="0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -13,19 +13,18 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="44"/>
+            <RowDefinition Height="52"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="32"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBox x:Name="NodeText" Grid.ColumnSpan="2" Margin="4" Grid.Row="1" TextWrapping="Wrap" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
         <TextBlock x:Name="Description" Grid.ColumnSpan="2" Margin="4" TextWrapping="Wrap" Text="Description" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
         <Button x:Name="Submit" Content="Submit" Margin="4" Grid.Row="3" IsDefault="True" Click="Submit_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
         <Button x:Name="Cancel" Content="Cancel" Grid.Column="1" Margin="4" Grid.Row="3" IsCancel="True" Click="Cancel_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
-        <TextBlock x:Name="Error" Grid.ColumnSpan="2" Margin="4" Grid.Row="2" TextWrapping="Wrap" FontSize="9.333">
+        <TextBlock x:Name="Error" Grid.ColumnSpan="2" Margin="4" Grid.Row="2" TextWrapping="Wrap" FontSize="9 pt" FontFamily="{StaticResource DefaultFontFamily}">
             <TextBlock.Foreground>
-                <SolidColorBrush Color="{DynamicResource ErrorMsgText}"/>
+                <SolidColorBrush Color="{StaticResource ErrorMsgText}"/>
             </TextBlock.Foreground>
         </TextBlock>
-
     </Grid>
 </Window>

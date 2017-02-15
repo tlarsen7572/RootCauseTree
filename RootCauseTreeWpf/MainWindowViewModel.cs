@@ -23,6 +23,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             Problems = new ObservableCollection<ProblemContainer>();
             Graph = new Graphing.RootCauseGraph();
             app = (App)Application.Current;
+            algs = app.algs;
         }
 
         private App app;
@@ -30,6 +31,8 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private bool isFileOpen;
         private ProblemContainer currentProblem;
         private Graphing.RootCauseGraph graph;
+        private bool IsAddingLink = false;
+        public GraphSharp.Algorithms.Layout.ILayoutParameters algs;
 
         public Graphing.RootCauseGraph Graph { get { return graph; } private set
             {
@@ -45,6 +48,26 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
                 currentProblem = value;
                 if (value != null) GenerateGraph();
                 NotifyCurrentProblemChanged();
+            }
+        }
+
+        public bool CanInteractWithMenuArea { get { return !IsAddingLink; } set
+            {
+                IsAddingLink = !value;
+                NotifyIsAddingLink();
+            }
+        }
+
+        public Visibility ShowCancelAddLink
+        {
+            get
+            {
+                return IsAddingLink ? Visibility.Visible : Visibility.Hidden;
+            }
+            set
+            {
+                IsAddingLink = value == Visibility.Visible ? true : false;
+                NotifyIsAddingLink();
             }
         }
 
@@ -75,6 +98,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             Problems.Clear();
             bool result = SqliteDb.GetInstance().CreateNewFile(path);
             IsFileOpen = result;
+            Graph = new Graphing.RootCauseGraph();
             return result;
         }
 
@@ -132,6 +156,16 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             ExecuteCommand(new RemoveNodeChainCommand(SqliteDb.GetInstance(), node));
         }
 
+        public void AddLink(Node parent,Node child)
+        {
+            ExecuteCommand(new AddLinkCommand(SqliteDb.GetInstance(), parent, child));
+        }
+
+        public void RemoveLink(Node parent, Node child)
+        {
+            ExecuteCommand(new RemoveLinkCommand(SqliteDb.GetInstance(), parent, child));
+        }
+
         private void ExecuteCommand(IRootCauseCommand command)
         {
             CurrentProblem.AddAction(command);
@@ -150,6 +184,12 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             NotifyPropertyChanged("CurrentProblem");
             NotifyPropertyChanged("CanSaveImage");
             NotifyUndoRedo();
+        }
+
+        private void NotifyIsAddingLink()
+        {
+            NotifyPropertyChanged("CanInteractWithMenuArea");
+            NotifyPropertyChanged("ShowCancelAddLink");
         }
     }
 }

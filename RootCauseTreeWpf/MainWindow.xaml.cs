@@ -34,6 +34,9 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private double MaxScale = 3;
         private double MinScale = 0.3;
         private Node contextMenuNode;
+        private Graphing.RootCauseEdge contextMenuEdge;
+        private Node linkParent;
+        private bool isLinking;
 
         public MainWindow()
         {
@@ -64,6 +67,9 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             openFileDlg.DefaultExt = rootCauseExt;
             openFileDlg.Filter = rootCauseFilter;
             SetUpSaveDialog(newFileDlg, rootCauseExt, rootCauseFilter);
+            vm.CanInteractWithMenuArea = true;
+            RootCauseLayout.LayoutParameters = vm.algs;
+
         }
 
         private void SetUpSaveDialog(SaveFileDialog dlg,string extension,string filter)
@@ -142,27 +148,63 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private void Node_Click(object sender,RoutedEventArgs e)
         {
             contextMenuNode = (((FrameworkElement)sender).DataContext as Graphing.RootCauseVertex).Source;
-            var textDlg = new TextDialog(this, "Add Cause", "Enter a new causal statement.");
-            if (textDlg.ShowDialog().Value)
+            if (isLinking)
             {
-                vm.CreateChildNode(textDlg.Text,contextMenuNode);
+                CreateLink(contextMenuNode);
+            }
+            else
+            {
+                var textDlg = new TextDialog(this, "Add Cause", "Enter a new causal statement.");
+                if (textDlg.ShowDialog().Value)
+                {
+                    vm.CreateChildNode(textDlg.Text, contextMenuNode);
+                }
             }
         }
 
         private void OpenNodeMenu_Click(object sender,RoutedEventArgs e)
         {
             contextMenuNode = (((FrameworkElement)sender).DataContext as Graphing.RootCauseVertex).Source;
-            ContextMenu menu;
-            if (contextMenuNode is Problem)
+            if (isLinking)
             {
-                menu = FindResource("ProblemMenu") as ContextMenu;
+                CreateLink(contextMenuNode);
             }
             else
             {
-                menu = FindResource("CauseMenu") as ContextMenu;
+                ContextMenu menu;
+                if (contextMenuNode is Problem)
+                {
+                    menu = FindResource("ProblemMenu") as ContextMenu;
+                }
+                else
+                {
+                    menu = FindResource("CauseMenu") as ContextMenu;
+                }
+                menu.PlacementTarget = sender as Button;
+                menu.IsOpen = true;
             }
-            menu.PlacementTarget = sender as Button;
+        }
+
+        private void Edge_Click(object sender, MouseButtonEventArgs e)
+        {
+            contextMenuEdge = ((FrameworkElement)sender).DataContext as Graphing.RootCauseEdge;
+            var menu = FindResource("EdgeMenu") as ContextMenu;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
             menu.IsOpen = true;
+        }
+
+        private void StartLink_Click(object sender, RoutedEventArgs e)
+        {
+            linkParent = (((FrameworkElement)sender).DataContext as Graphing.RootCauseVertex).Source;
+            isLinking = true;
+            vm.CanInteractWithMenuArea = false;
+        }
+
+        private void CancelLink_Click(object sender, RoutedEventArgs e)
+        {
+            linkParent = null;
+            isLinking = false;
+            vm.CanInteractWithMenuArea = true;
         }
 
         private void EditNodeText_Click(object sender, RoutedEventArgs e)
@@ -210,6 +252,43 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private void DeleteCause_Click(object sender, RoutedEventArgs e)
         {
             vm.DeleteCause(contextMenuNode);
+        }
+
+        private void RemoveLink_Click(object sender, RoutedEventArgs e)
+        {
+            vm.RemoveLink(contextMenuEdge.Source.Source, contextMenuEdge.Target.Source);
+        }
+
+        private void CreateLink(Node child)
+        {
+            vm.AddLink(linkParent, child);
+            isLinking = false;
+            linkParent = null;
+            vm.CanInteractWithMenuArea = true;
+        }
+
+        private bool RootCauseLayoutClick;
+
+        private void RootCauseLayout_LeftMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (RootCauseLayoutClick && RootCauseLayout.HighlightedEdges.Count() > 0)
+            {
+                contextMenuEdge = RootCauseLayout.HighlightedEdges.First();
+                var menu = FindResource("EdgeMenu") as ContextMenu;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
+                menu.IsOpen = true;
+            }
+            RootCauseLayoutClick = false;
+        }
+
+        private void RootCauseLayout_LeftMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            RootCauseLayoutClick = true;
+        }
+
+        private void RootCauseLayout_MouseMove(object sender, MouseEventArgs e)
+        {
+            RootCauseLayoutClick = false;
         }
     }
 }

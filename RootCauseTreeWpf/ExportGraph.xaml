@@ -9,7 +9,7 @@
         xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
         xmlns:core="clr-namespace:com.PorcupineSupernova.RootCauseTreeCore"
         mc:Ignorable="d"
-        Title="Export Root Cause Tree" Height="480" Width="640" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" ResizeMode="CanResize" DataContext="{Binding RelativeSource={RelativeSource Self}}" WindowStyle="None" Loaded="Window_Loaded">
+        Title="Export Root Cause Tree" Height="480" Width="640" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" ResizeMode="CanResize" DataContext="{Binding RelativeSource={RelativeSource Self}}" WindowStyle="None" Loaded="Window_Loaded" Style="{StaticResource DefaultFont}">
     <Window.Resources>
         <DataTemplate x:Key="VertexContent" DataType="{x:Type graphing:RootCauseVertex}">
             <Grid Margin="2" MaxWidth="200">
@@ -42,15 +42,15 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Menu Background="{x:Null}" FontSize="{StaticResource IconFontSize}" FontFamily="{StaticResource IconFontFamily}">
+        <Menu Background="{x:Null}" Style="{StaticResource IconFont}">
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
                     <DockPanel LastChildFill="True" HorizontalAlignment="Stretch"/>
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
-            <MenuItem x:Name="PrintFile" DockPanel.Dock="Left" Header="&#x2399;" HorizontalAlignment="Left" Click="PrintFile_Click"/>
-            <MenuItem x:Name="SaveFile" DockPanel.Dock="Left" Header="&#xE105;" HorizontalAlignment="Left" Click="SaveFile_Click"/>
-            <MenuItem x:Name="CloseWindow" DockPanel.Dock="Right" Header="&#xE10A;" HorizontalAlignment="Right" Click="CloseWindow_Click"/>
+            <MenuItem x:Name="PrintFile" DockPanel.Dock="Left" Header="&#x2399;" HorizontalAlignment="Left" Click="PrintFile_Click" ToolTip="Print Image"/>
+            <MenuItem x:Name="SaveFile" DockPanel.Dock="Left" Header="&#xE105;" HorizontalAlignment="Left" Click="SaveFile_Click" ToolTip="Save Image"/>
+            <MenuItem x:Name="CloseWindow" DockPanel.Dock="Right" Header="&#xE10A;" HorizontalAlignment="Right" Click="CloseWindow_Click" ToolTip="Close"/>
             <MenuItem x:Name="MinMaxWindow" DockPanel.Dock="Right" Header="{Binding Path=MinMaxState}" HorizontalAlignment="Right" Click="MinMaxWindow_Click"/>
         </Menu>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
@@ -64,8 +64,8 @@
                     LayoutAlgorithmType="Tree"
                     OverlapRemovalAlgorithmType="FSA"
                     HighlightAlgorithmType="None"
-                    AnimationLength="0"
-                    />
+                    AnimationLength="0">
+                    </graphing:RootCauseGraphLayout>
                 </Grid>
             </Grid>
         </ScrollViewer>

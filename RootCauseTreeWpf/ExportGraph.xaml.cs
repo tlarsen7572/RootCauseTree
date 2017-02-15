@@ -31,6 +31,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             saveImageDlg.Filter = imageFilter;
             saveImageDlg.CheckPathExists = true;
             saveImageDlg.AddExtension = true;
+            RootCauseLayout.LayoutParameters = app.algs;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -43,7 +44,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private Node _node;
         private Graphing.RootCauseGraph _graph;
         private SaveFileDialog saveImageDlg = new SaveFileDialog();
-        private string imageFilter = "Portable Network Graphics (.png)|*.png";
+        private string imageFilter = "Portable Network Graphics|*.png";
         private string imageExt = ".png";
 
         public Graphing.RootCauseGraph Graph { get { return _graph; }private set
@@ -58,7 +59,18 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         {
             get
             {
-                return WindowState == WindowState.Maximized? "\uE1D8" : "\uE1D9";
+                string icon;
+                if (WindowState == WindowState.Maximized)
+                {
+                    icon = "\uE1D8";
+                    MinMaxWindow.ToolTip = "Restore";
+                }
+                else
+                {
+                    icon = "\uE1D9";
+                    MinMaxWindow.ToolTip = "Maximize";
+                }
+                return icon;
             }
         }
 

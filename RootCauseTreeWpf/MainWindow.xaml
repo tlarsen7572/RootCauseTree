@@ -10,24 +10,24 @@
         xmlns:core="clr-namespace:com.PorcupineSupernova.RootCauseTreeCore"
         x:Class="com.PorcupineSupernova.RootCauseTreeWpf.MainWindow"
         mc:Ignorable="d"
-        Title="Arborist" Height="350" Width="525" Loaded="Window_Loaded" WindowState="Maximized" ResizeMode="CanResizeWithGrip">
+        Title="Arborist" Height="480" Width="640" Loaded="Window_Loaded" WindowState="Maximized" ResizeMode="CanResizeWithGrip" Style="{StaticResource DefaultFont}">
     <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
     <Window.Resources>
         <ContextMenu x:Key="ProblemMenu">
             <MenuItem Header="Edit Text" Click="EditNodeText_Click"/>
-            <MenuItem Header="Add Link"/>
+            <MenuItem Header="Add Link"  Click="StartLink_Click"/>
             <MenuItem Header="Delete Problem" Click="DeleteProblem_Click"/>
         </ContextMenu>
         <ContextMenu x:Key="CauseMenu">
             <MenuItem Header="Edit Text" Click="EditNodeText_Click"/>
-            <MenuItem Header="Add Link"/>
+            <MenuItem Header="Add Link" Click="StartLink_Click"/>
             <MenuItem Header="Delete Cause" Click="DeleteCause_Click"/>
             <MenuItem Header="Delete Cause Chain" Click="DeleteCauseChain_Click"/>
         </ContextMenu>
-        <ContextMenu x:Key="LinkMenu">
-            <MenuItem Header="RemoveLink"/>
+        <ContextMenu x:Key="EdgeMenu">
+            <MenuItem Header="Remove Link" Click="RemoveLink_Click"/>
         </ContextMenu>
         <DataTemplate x:Key="VertexContent" DataType="{x:Type graphing:RootCauseVertex}">
             <Grid Margin="2" MaxWidth="200">
@@ -38,6 +38,9 @@
                     <TextBlock Text="&#xE0C2;" FontFamily="Segoe UI Symbol"/>
                 </Button>
             </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="Edge" DataType="{x:Type graphing:RootCauseEdge}">
+            <Grid MouseLeftButtonDown="Edge_Click"/>
         </DataTemplate>
         <Style TargetType="{x:Type graphsharp:VertexControl}">
             <Setter Property="Template">
@@ -50,12 +53,6 @@
         </Style>
     </Window.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
@@ -74,6 +71,9 @@
                 OverlapRemovalAlgorithmType="FSA"
                 HighlightAlgorithmType="Simple"
                 AnimationLength="0"
+                MouseLeftButtonUp="RootCauseLayout_LeftMouseUp"
+                MouseLeftButtonDown="RootCauseLayout_LeftMouseDown"
+                MouseMove="RootCauseLayout_MouseMove"
             />
             </Canvas>
         </Grid>
@@ -82,54 +82,75 @@
                 <SolidColorBrush Color="{DynamicResource LightBrown}"/>
             </GridSplitter.Background>
         </GridSplitter>
-        <Menu Margin="0,0,8,0" VerticalAlignment="Top" Grid.Row="0">
-            <Menu.Background>
-                <SolidColorBrush Color="{DynamicResource LightBrown}"/>
-            </Menu.Background>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <MenuItem x:Name="MainMenu" Header="_Menu" Padding="1,5" FontSize="{StaticResource IconFontSize}">
-                <MenuItem x:Name="NewFile" Cursor="" Header="_New" Click="NewFile_Click"/>
-                <MenuItem x:Name="OpenFile" Header="_Open" Click="OpenFile_Click"/>
-                <MenuItem x:Name="SaveImage" Header="_Save Tree Image" Click="SaveImage_Click" IsEnabled="{Binding CanSaveImage}"/>
-                <MenuItem x:Name="ExitApp" Header="_Exit Application" Click="ExitApp_Click"/>
-            </MenuItem>
-        </Menu>
-        <Grid Margin="0,0,8,0" d:LayoutOverrides="Height" Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Button IsEnabled="{Binding CanUndo}" FontSize="{StaticResource IconFontSize}" FontFamily="{StaticResource IconFontFamily}" Content="&#xE10E;" Click="Undo_Click" >
+        <Grid Name="MenuArea" IsEnabled="{Binding CanInteractWithMenuArea}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Menu Margin="0,0,8,0" VerticalAlignment="Top" Grid.Row="0">
+                <Menu.Background>
+                    <SolidColorBrush Color="{DynamicResource LightBrown}"/>
+                </Menu.Background>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <MenuItem x:Name="MainMenu" Header="_Menu" Padding="3,9" FontSize="12 pt">
+                    <MenuItem x:Name="NewFile" Cursor="" Header="_New" Click="NewFile_Click" Style="{StaticResource DefaultFont}"/>
+                    <MenuItem x:Name="OpenFile" Header="_Open" Click="OpenFile_Click" Style="{StaticResource DefaultFont}"/>
+                    <MenuItem x:Name="SaveImage" Header="_Save Tree Image" Click="SaveImage_Click" IsEnabled="{Binding CanSaveImage}" Style="{StaticResource DefaultFont}"/>
+                    <MenuItem x:Name="ExitApp" Header="_Exit Application" Click="ExitApp_Click" Style="{StaticResource DefaultFont}"/>
+                </MenuItem>
+            </Menu>
+            <Grid Margin="0,0,8,0" d:LayoutOverrides="Height" Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button IsEnabled="{Binding CanUndo}" Content="&#xE10E;" Click="Undo_Click" Padding="5" ToolTip="Undo" >
+                    <Button.Background>
+                        <SolidColorBrush Color="{DynamicResource DarkBrown}"/>
+                    </Button.Background>
+                </Button>
+                <Button Grid.Column="1" Margin="0" Content="&#xE10D;" IsEnabled="{Binding CanRedo}" Click="Redo_Click" Padding="5" ToolTip="Redo">
+                    <Button.Background>
+                        <SolidColorBrush Color="{DynamicResource DarkBrown}"/>
+                    </Button.Background>
+                </Button>
+            </Grid>
+            <ListBox x:Name="ProblemList" Grid.Row="2" Margin="0,0,8,0" BorderBrush="{x:Null}" BorderThickness="0" ItemsSource="{Binding Path=Problems}" SelectedItem="{Binding Path=CurrentProblem,Mode=TwoWay}" SelectionMode="Single" SelectionChanged="ProblemList_SelectionChanged" >
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="core:MainWindowViewModel">
+                        <WrapPanel>
+                            <TextBlock Text="{Binding Path=InitialProblem.Text}" />
+                        </WrapPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.Background>
+                    <SolidColorBrush Color="{DynamicResource LightGreen}"/>
+                </ListBox.Background>
+            </ListBox>
+            <Button x:Name="AddProblem" Grid.Row="3" Content="&#xE109; Problem" Margin="0,0,8,0" VerticalAlignment="Bottom" BorderBrush="#FFF0F0F0" Click="AddProblem_Click" IsEnabled="{Binding IsFileOpen}" Padding="5" ToolTip="Add a new problem statement">
                 <Button.Background>
-                    <SolidColorBrush Color="{DynamicResource DarkBrown}"/>
-                </Button.Background>
-            </Button>
-            <Button Grid.Column="1" Margin="0" Content="&#xE10D;" FontSize="{StaticResource IconFontSize}" FontFamily="{StaticResource IconFontFamily}" IsEnabled="{Binding CanRedo}" Click="Redo_Click">
-                <Button.Background>
-                    <SolidColorBrush Color="{DynamicResource DarkBrown}"/>
+                    <SolidColorBrush Color="{DynamicResource DarkGreen}"/>
                 </Button.Background>
             </Button>
         </Grid>
-        <ListBox x:Name="ProblemList" Grid.Row="2" Margin="0,0,8,0" BorderBrush="{x:Null}" BorderThickness="0" ItemsSource="{Binding Path=Problems}" SelectedItem="{Binding Path=CurrentProblem,Mode=TwoWay}" SelectionMode="Single" SelectionChanged="ProblemList_SelectionChanged" >
-            <ListBox.ItemTemplate>
-                <DataTemplate DataType="core:MainWindowViewModel">
-                    <WrapPanel>
-                        <TextBlock Text="{Binding Path=InitialProblem.Text}" />
-                    </WrapPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-            <ListBox.Background>
-                <SolidColorBrush Color="{DynamicResource LightGreen}"/>
-            </ListBox.Background>
-        </ListBox>
-        <Button x:Name="AddProblem" Grid.Row="3" FontFamily="{StaticResource IconFontFamily}" FontSize="{StaticResource IconFontSize}" Content="&#xE109; Problem" Margin="0,0,8,0" VerticalAlignment="Bottom" BorderBrush="#FFF0F0F0" Click="AddProblem_Click" IsEnabled="{Binding IsFileOpen}">
-            <Button.Background>
-                <SolidColorBrush Color="{DynamicResource DarkGreen}"/>
-            </Button.Background>
-        </Button>
+        <Grid Name="AddLinkDialog" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="Auto" Height="Auto" Grid.Column="1" MaxWidth="200" Margin="0,0,10,10" Visibility="{Binding ShowCancelAddLink}">
+            <Grid.Background>
+                <SolidColorBrush Color="{StaticResource LightBrown}"/>
+            </Grid.Background>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Width="Auto" Height="Auto" TextWrapping="Wrap" Text="Select a child node to complete the link." Margin="0" Padding="5">
+            </TextBlock>
+            <Button Content="Cancel" IsCancel="True" Grid.Row="1" Margin="5" Padding="5" Click="CancelLink_Click"/>
+            <Border Grid.RowSpan="2" Margin="0" BorderBrush="Black" BorderThickness="1"/>
+        </Grid>
     </Grid>
 </Window>
