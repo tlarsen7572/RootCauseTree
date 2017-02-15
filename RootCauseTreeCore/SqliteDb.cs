@@ -394,6 +394,7 @@ CREATE TABLE hierarchy (parentid BIGINT, childid BIGINT, PRIMARY KEY (parentid, 
             CommitAndCleanUp(command);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         private int ExecuteQuery(SQLiteCommand command, string sql, SQLiteParameter[] parms, bool doOrphanCleanup = false)
         {
             command.CommandText = sql;
@@ -416,16 +417,15 @@ CREATE TABLE hierarchy (parentid BIGINT, childid BIGINT, PRIMARY KEY (parentid, 
             }
             catch (SQLiteException)
             {
-                command.Dispose();
                 conn.Close();
-                conn.Dispose();
+                command.Dispose();
                 throw new InvalidRootCauseFileException();
             }
             catch (Exception)
             {
-                command.Dispose();
                 conn.Close();
-                conn.Dispose();
+                command.Dispose();
+                throw;
             }
             return command;
         }

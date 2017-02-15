@@ -32,9 +32,17 @@
         <DataTemplate x:Key="VertexContent" DataType="{x:Type graphing:RootCauseVertex}">
             <Grid Margin="2" MaxWidth="200">
                 <Button Margin="0,0,0,0" Click="Node_Click" Padding="3">
-                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=Text,StringFormat={}      {0}}"/>
+                    <Button.Background>
+                        <SolidColorBrush Color="{Binding Path=VertexType,Converter={StaticResource VertexToColor},TargetNullValue={StaticResource ChildNode},FallbackValue={StaticResource ChildNode}}"/>
+                        <!-- <SolidColorBrush Color="{StaticResource ChildNode}"/> -->
+                    </Button.Background>
+                    <TextBlock Name="NodeText" TextWrapping="Wrap" Text="{Binding Path=Text,StringFormat={}      {0},TargetNullValue={StaticResource FallbackString},FallbackValue={StaticResource FallbackString}}"/>
                 </Button>
-                <Button x:Name="GetContextMenu" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="{x:Null}" Background="#FFD4D4D4" Click="OpenNodeMenu_Click">
+                <Button x:Name="GetContextMenu" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="{x:Null}" Click="OpenNodeMenu_Click">
+                    <Button.Background>
+                        <SolidColorBrush Color="{Binding Path=VertexType,Converter={StaticResource VertexToDarkColor},TargetNullValue={StaticResource ChildNodeDark},FallbackValue=1{StaticResource ChildNodeDark}}"/>
+                        <!-- <SolidColorBrush Color="{StaticResource ChildNodeDark}"/> -->
+                    </Button.Background>
                     <TextBlock Text="&#xE0C2;" FontFamily="Segoe UI Symbol"/>
                 </Button>
             </Grid>

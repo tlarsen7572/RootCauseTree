@@ -59,7 +59,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
                 }
                 catch (InvalidRootCauseFileException)
                 {
-                    MessageBox.Show("The selected file does not appear to be a valid root cause tree.  Please select a different file.","Invalid File");
+                    MessageBox.Show("The selected file does not appear to be a valid root cause tree.  Please select a different file.", "Invalid File");
                 }
                 Title = $"Arborist: {openFileDlg.SafeFileName}";
             }

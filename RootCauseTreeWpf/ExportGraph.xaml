@@ -14,7 +14,7 @@
         <DataTemplate x:Key="VertexContent" DataType="{x:Type graphing:RootCauseVertex}">
             <Grid Margin="2" MaxWidth="200">
                 <Grid.Background>
-                    <SolidColorBrush Color="LightGray"/>
+                    <SolidColorBrush Color="{Binding Path=VertexType,Converter={StaticResource VertexToColor},TargetNullValue={StaticResource ChildNode},FallbackValue={StaticResource ChildNode}}"/>
                 </Grid.Background>
                 <TextBlock TextWrapping="Wrap" Text="{Binding Path=Text,Mode=OneWay}" MouseDown="TextBlock_MouseDown" Padding="3"/>
                 <Border BorderThickness="1" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

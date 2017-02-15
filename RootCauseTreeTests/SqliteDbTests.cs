@@ -127,6 +127,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
 
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         private void TestCreateProblemStatement()
         {
             var command = CreateCommandForNewDb("Tester.rootcause");
@@ -155,6 +156,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             Assert.AreEqual("This is my problem", topLevelText);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         private void TestCreateNewNode()
         {
             var command = CreateCommandForNewDb("Tester.rootcause");
@@ -184,6 +186,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             Assert.AreEqual("1", hierarchies);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         private void TestChangeNodeText()
         {
             var command = CreateCommandForNewDb("Tester.rootcause");

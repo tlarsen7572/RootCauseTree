@@ -101,6 +101,7 @@
     <Compile Include="ExportGraph.xaml.cs">
       <DependentUpon>ExportGraph.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VertexTypeToColorConverter.cs" />
     <Compile Include="TextDialog.xaml.cs">
       <DependentUpon>TextDialog.xaml</DependentUpon>
     </Compile>
