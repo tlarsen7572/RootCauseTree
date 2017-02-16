@@ -53,15 +53,16 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             bool? didOpen = openFileDlg.ShowDialog();
             if (didOpen.HasValue && didOpen.Value == true)
             {
+                SetTitle("");
                 try
                 {
                     vm.OpenFile(openFileDlg.FileName);
+                    SetTitle(openFileDlg.SafeFileName);
                 }
                 catch (InvalidRootCauseFileException)
                 {
                     MessageBox.Show("The selected file does not appear to be a valid root cause tree.  Please select a different file.", "Invalid File");
                 }
-                Title = $"Arborist: {openFileDlg.SafeFileName}";
             }
             openFileDlg.FileName = string.Empty;
         }
@@ -80,7 +81,15 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             if (App.Current.Properties["StartupFile"] != null)
             {
                 string file = App.Current.Properties["StartupFile"].ToString();
-                vm.OpenFile(file);
+                try
+                {
+                    vm.OpenFile(file);
+                    SetTitle(new System.IO.FileInfo(file).Name);
+                }
+                catch (InvalidRootCauseFileException)
+                {
+                    MessageBox.Show("The selected file does not appear to be a valid root cause tree.  Please select a different file.", "Invalid File");
+                }
             }
         }
 
@@ -113,7 +122,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             if (didSelectFile.HasValue && didSelectFile.Value == true)
             {
                 vm.NewFile(newFileDlg.FileName);
-                Title = $"Arborist: {newFileDlg.SafeFileName}";
+                SetTitle(newFileDlg.SafeFileName);
             }
             newFileDlg.FileName = string.Empty;
         }
@@ -301,6 +310,11 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private void RootCauseLayout_MouseMove(object sender, MouseEventArgs e)
         {
             RootCauseLayoutClick = false;
+        }
+
+        private void SetTitle(string file)
+        {
+            Title = $"Arborist: {file}";
         }
     }
 }

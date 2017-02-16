@@ -85,10 +85,12 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         public bool OpenFile(string path)
         {
             Path = path;
+            IsFileOpen = false;
             Problems.Clear();
+            CurrentProblem = null;
+            Graph = new Graphing.RootCauseGraph();
             SqliteDb.GetInstance().LoadFile(path).ToList().ForEach(Problems.Add);
             IsFileOpen = true;
-            Graph = new Graphing.RootCauseGraph();
             return true;
         }
 
