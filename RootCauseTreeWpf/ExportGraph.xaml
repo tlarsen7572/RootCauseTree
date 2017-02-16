@@ -58,7 +58,7 @@
                 <SolidColorBrush Color="{DynamicResource VeryLightGreen}"/>
             </ScrollViewer.Background>
             <Grid Width="Auto" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Grid x:Name="TreeGrid">
+                <Grid x:Name="TreeGrid" Margin="0">
                     <graphing:RootCauseGraphLayout x:Name="RootCauseLayout"
                     Graph="{Binding Path=Graph,Mode=OneWay}"
                     LayoutAlgorithmType="Tree"

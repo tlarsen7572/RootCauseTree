@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RootCauseTreeWpf")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Arborist")]
+[assembly: AssemblyDescription("A tool to faciliate creation of root cause tree analyses.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("RootCauseTreeWpf")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCompany("Porcupine Supernova LLC")]
+[assembly: AssemblyProduct("Arborist")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

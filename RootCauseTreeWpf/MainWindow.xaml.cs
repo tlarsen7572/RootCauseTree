@@ -77,6 +77,11 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             vm.CanInteractWithMenuArea = true;
             RootCauseLayout.LayoutParameters = vm.algs;
 
+            if (App.Current.Properties["StartupFile"] != null)
+            {
+                string file = App.Current.Properties["StartupFile"].ToString();
+                vm.OpenFile(file);
+            }
         }
 
         private void SetUpSaveDialog(SaveFileDialog dlg,string extension,string filter)
@@ -115,7 +120,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void AddProblem_Click(object sender, RoutedEventArgs e)
         {
-            var textDlg = new TextDialog(this,"Add Problem", "Enter a new problem statement.");
+            var textDlg = new TextDialog(this,"Add Problem", "Enter a clear and concise problem statement, focusing on describing the symptoms while minimizing assumptions about possible causes.");
             if (textDlg.ShowDialog().Value)
             {
                 vm.CreateProblem(textDlg.Text);
@@ -161,7 +166,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             }
             else
             {
-                var textDlg = new TextDialog(this, "Add Cause", $"{contextMenuNode.Text}\n", "Is caused by \uE019      Therefore \uE018");
+                var textDlg = new TextDialog(this, "Add Cause", $"{contextMenuNode.Text}\n", "\uE019 Because             Therefore \uE018");
                 if (textDlg.ShowDialog().Value)
                 {
                     vm.CreateChildNode(textDlg.Text, contextMenuNode);

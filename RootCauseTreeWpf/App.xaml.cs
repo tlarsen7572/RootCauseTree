@@ -21,6 +21,24 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             algs = new GraphSharp.Algorithms.Layout.Simple.Tree.SimpleTreeLayoutParameters();
         }
 
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            if (e.Args != null && e.Args.Count() > 0)
+            {
+                Properties["StartupFile"] = e.Args[0].ToString();
+            }
+
+            var startupData = AppDomain.CurrentDomain.SetupInformation.ActivationArguments;
+            if (startupData != null && startupData.ActivationData.Count() > 0)
+            {
+                string fileRaw = startupData.ActivationData[0];
+                var fileUri = new Uri(fileRaw);
+                Properties["StartupFile"] = fileUri.LocalPath;
+            }
+
+            base.OnStartup(e);
+        }
+
         public Graphing.RootCauseGraph GenerateGraph(Node node)
         {
             var newGraph = new Graphing.RootCauseGraph();

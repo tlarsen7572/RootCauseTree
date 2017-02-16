@@ -2,3 +2,5 @@
 */obj/*
 packages/
 TestResults/
+RootCauseTreeInstaller/
+.vs/

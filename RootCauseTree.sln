@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RootCauseTreeWpf", "RootCau
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RootCauseTreeTests", "RootCauseTreeTests\RootCauseTreeTests.csproj", "{CC8EDEDD-CE51-419D-A853-F49A44E5D4D7}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "RootCauseTreeInstaller", "RootCauseTreeInstaller\RootCauseTreeInstaller.vdproj", "{3B6F303C-E30B-469D-8894-7FDC6D9C784D}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		RootCauseTreeCore\RootCauseTreeCore.projitems*{19c6e36c-45d7-457e-9ce8-9f15dfaae39e}*SharedItemsImports = 13
@@ -198,6 +200,42 @@ Global
 		{CC8EDEDD-CE51-419D-A853-F49A44E5D4D7}.Surface Graph Viewer - Release|x64.Build.0 = Release|Any CPU
 		{CC8EDEDD-CE51-419D-A853-F49A44E5D4D7}.Surface Graph Viewer - Release|x86.ActiveCfg = Release|Any CPU
 		{CC8EDEDD-CE51-419D-A853-F49A44E5D4D7}.Surface Graph Viewer - Release|x86.Build.0 = Release|Any CPU
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.CutRelease|Any CPU.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.CutRelease|x64.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.CutRelease|x86.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Debug Surface Graph Viewer|Any CPU.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Debug Surface Graph Viewer|x64.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Debug Surface Graph Viewer|x86.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Debug|Any CPU.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Debug|x64.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Debug|x86.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.DebugDevTrace|Any CPU.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.DebugDevTrace|x64.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.DebugDevTrace|x86.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.DebugSurface|Any CPU.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.DebugSurface|x64.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.DebugSurface|x86.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.DebugWithoutRebuild|Any CPU.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.DebugWithoutRebuild|x64.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.DebugWithoutRebuild|x86.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.MinimalMsagl|Any CPU.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.MinimalMsagl|x64.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.MinimalMsagl|x86.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Release|Any CPU.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Release|x64.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Release|x86.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Retail|Any CPU.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Retail|x64.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Retail|x86.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Setup|Any CPU.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Setup|x64.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Setup|x86.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Surface Graph Viewer - Debug|Any CPU.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Surface Graph Viewer - Debug|x64.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Surface Graph Viewer - Debug|x86.ActiveCfg = Debug
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Surface Graph Viewer - Release|Any CPU.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Surface Graph Viewer - Release|x64.ActiveCfg = Release
+		{3B6F303C-E30B-469D-8894-7FDC6D9C784D}.Surface Graph Viewer - Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

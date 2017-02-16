@@ -145,9 +145,27 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             var result = dlg.ShowDialog();
             if (result.HasValue && result.Value)
             {
-                TreeGrid.Measure(new Size(dlg.PrintableAreaWidth,dlg.PrintableAreaHeight));
-                TreeGrid.Arrange(new Rect(new Point(0, 0), TreeGrid.DesiredSize));
+                Transform originalScale = TreeGrid.LayoutTransform;
+
+                //Get page size and scaling information from the printer
+                var capabilities = dlg.PrintQueue.GetPrintCapabilities(dlg.PrintTicket);
+                double PageMarginLeft = capabilities.PageImageableArea.OriginWidth;
+                double PageMarginTop = capabilities.PageImageableArea.OriginHeight;
+                double PageWidth = capabilities.PageImageableArea.ExtentWidth;
+                double PageHeight = capabilities.PageImageableArea.ExtentHeight;
+                double printScale = Math.Min((PageWidth - (PageMarginLeft*2)) / TreeGrid.ActualWidth, (PageHeight - (PageMarginTop*2)) / TreeGrid.ActualHeight) - .01;
+
+                //Apply the scale
+                TreeGrid.LayoutTransform = new ScaleTransform(printScale, printScale);
+
+                //Print the image
+                Size pageSize = new Size(PageWidth, PageHeight);
+                TreeGrid.Measure(pageSize);
+                TreeGrid.Arrange(new Rect(PageMarginLeft,PageMarginTop,pageSize.Width,pageSize.Height));
                 dlg.PrintVisual(TreeGrid, "Root Cause Tree");
+
+                //Restore the original scale
+                TreeGrid.LayoutTransform = originalScale;
             }
         }
     }
