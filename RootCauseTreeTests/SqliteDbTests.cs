@@ -41,6 +41,8 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             TestUndoRemoveNode();
             TestRemoveTopLevel();
             TestLoadFile();
+            TestOpenInUseFile();
+            SqliteDb.GetInstance().CloseConnection();
         }
 
         //TESTS
@@ -70,6 +72,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
 
         private void TestLoadFile()
         {
+            CreateCommandForNewDb("Tester.rootcause").Dispose();
             CreateComplexModelForTest();
             IEnumerable<ProblemContainer> problems = SqliteDb.GetInstance().LoadFile(GetPath("Tester.rootcause"));
             HashSet<string> links = new HashSet<string>();
@@ -453,6 +456,19 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
             CleanUpCommand(command);
         }
 
+        private void TestOpenInUseFile()
+        {
+            CreateCommandForNewDb("Tester.rootcause").Dispose();
+            try
+            {
+                SQLiteConnection.CreateFile(GetPath("Tester.rootcause"));
+            }
+            catch (System.IO.IOException ex)
+            {
+                System.Diagnostics.Debug.Write(ex.Message);
+            }
+        }
+
         //UTILITIES
         private void VerifyDefaultComplexModel(SQLiteCommand command,Dictionary<string,Node> nodes)
         {
@@ -488,10 +504,7 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
         private SQLiteCommand CreateCommandForNewDb(string fileName)
         {
             string filePath = GetPath(fileName);
-            SqliteDb.GetInstance().CreateNewFile(filePath);
-            string connStr = string.Concat("Data Source=", filePath, ";Version=3;");
-            SQLiteConnection conn = new SQLiteConnection(connStr);
-            conn.Open();
+            var conn = SqliteDb.GetInstance().CreateNewFile(filePath);
             return conn.CreateCommand();
         }
 
@@ -507,8 +520,6 @@ namespace com.PorcupineSupernova.RootCauseTreeTests
 
         private void CleanUpCommand(SQLiteCommand command)
         {
-            command.Connection.Close();
-            command.Connection.Dispose();
             command.Dispose();
         }
 

@@ -8,8 +8,10 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
     class SqliteDb : IRootCauseDb
     {
         private static SqliteDb _Db = new SqliteDb();
+        private SQLiteConnection conn;
 
         public string CurrentFile { get; private set; }
+        public SQLiteConnection Conn { get { return conn; } }
 
         private SqliteDb() { }
 
@@ -18,19 +20,22 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             return _Db;
         }
 
-        public bool CreateNewFile(string path)
+        public SQLiteConnection CreateNewFile(string path)
         {
+            if (conn != null) { CloseConnection(); }
             CurrentFile = path;
             CreateDbFile();
-            return true;
+            return conn;
         }
 
         public IEnumerable<ProblemContainer> LoadFile(string path)
         {
-            CurrentFile = path;
+            if (conn != null) { CloseConnection(); }
+            ConfigureConnectionAndOpen(path);
 
             if (!IsSchemaCorrect())
             {
+                CloseConnection();
                 throw new InvalidRootCauseFileException();
             }
 
@@ -41,6 +46,11 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             Node node;
 
             var command = CreateNewCommand();
+            command.CommandText = "PRAGMA locking_mode=EXCLUSIVE;";
+            command.ExecuteNonQuery();
+            CommitAndCleanUp(command);
+
+            command = CreateNewCommand();
             command.CommandText = 
 @"SELECT a.nodeid,b.nodetext FROM toplevel a JOIN nodes b ON a.nodeid = b.nodeid;
 SELECT * FROM hierarchy;
@@ -380,8 +390,10 @@ DELETE FROM hierarchy WHERE parentid = $toplevel OR childid = $toplevel;";
         private void CreateDbFile()
         {
             SQLiteConnection.CreateFile(CurrentFile);
+            ConfigureConnectionAndOpen(CurrentFile);
             string sql = 
-@"DROP TABLE IF EXISTS toplevel;
+@"PRAGMA locking_mode=EXCLUSIVE;
+DROP TABLE IF EXISTS toplevel;
 DROP TABLE IF EXISTS nodes;
 DROP TABLE IF EXISTS hierarchy;
 CREATE TABLE toplevel (nodeid BIGINT, PRIMARY KEY (nodeid)) WITHOUT ROWID;
@@ -407,9 +419,6 @@ CREATE TABLE hierarchy (parentid BIGINT, childid BIGINT, PRIMARY KEY (parentid, 
 
         private SQLiteCommand CreateNewCommand()
         {
-            string connStr = string.Concat("Data Source=", CurrentFile, ";Version=3;");
-            var conn = new SQLiteConnection(connStr);
-            conn.Open();
             var command = conn.CreateCommand();
             try
             {
@@ -417,13 +426,11 @@ CREATE TABLE hierarchy (parentid BIGINT, childid BIGINT, PRIMARY KEY (parentid, 
             }
             catch (SQLiteException)
             {
-                conn.Close();
                 command.Dispose();
                 throw new InvalidRootCauseFileException();
             }
             catch (Exception)
             {
-                conn.Close();
                 command.Dispose();
                 throw;
             }
@@ -455,10 +462,58 @@ DELETE FROM hierarchy WHERE parentid IN t_orphans;";
         private void CommitAndCleanUp(SQLiteCommand command)
         {
             command.Transaction.Commit();
-            command.Connection.Close();
             command.Transaction.Dispose();
-            command.Connection.Dispose();
             command.Dispose();
+        }
+
+        private void ConfigureConnectionAndOpen(string path)
+        {
+            if (IsFileLocked(path))
+            {
+                throw new RootCauseFileLockedException();
+            }
+
+            if (new Uri(path).IsUnc) CurrentFile = $"\\\\{path}";
+            else CurrentFile = path;
+
+            string connStr = string.Concat("Data Source=", CurrentFile, ";Version=3;");
+            conn = new SQLiteConnection(connStr);
+            conn.Open();
+        }
+
+        private bool IsFileLocked(string path)
+        {
+            System.IO.FileStream stream = null;
+
+            try
+            {
+                stream = new System.IO.FileInfo(path).Open(System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
+            }
+            catch (System.IO.IOException)
+            {
+                return true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    { stream.Dispose(); };
+            }
+            return false;
+        }
+
+        public void CloseConnection()
+        {
+            if (conn != null)
+            {
+                conn.Close();
+                conn.Dispose();
+                conn = null;
+            }
+            GC.Collect();
         }
 
         private bool IsSchemaCorrect()
@@ -477,11 +532,15 @@ PRAGMA table_info('toplevel');";
             }
             catch (SQLiteException)
             {
+                CloseConnection();
+                command.Dispose();
                 throw new InvalidRootCauseFileException();
             }
-            finally
+            catch (Exception)
             {
+                CloseConnection();
                 command.Dispose();
+                throw;
             }
 
             while (reader.Read())

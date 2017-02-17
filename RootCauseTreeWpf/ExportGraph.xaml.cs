@@ -94,6 +94,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             bool? didSelectFile = saveImageDlg.ShowDialog();
             if (didSelectFile.HasValue && didSelectFile.Value == true)
             {
+                Mouse.OverrideCursor = Cursors.Wait;
                 string path = saveImageDlg.FileName;
 
                 //Draw the bitmap from the control
@@ -122,6 +123,10 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
                 {
                     MessageBox.Show("Could not save the image.  Please try again or select a different location.", "Save Image Failed");
                 }
+                finally
+                {
+                    Mouse.OverrideCursor = null;
+                }
             }
             saveImageDlg.FileName = string.Empty;
         }
@@ -145,6 +150,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             var result = dlg.ShowDialog();
             if (result.HasValue && result.Value)
             {
+                Mouse.OverrideCursor = Cursors.Wait;
                 Transform originalScale = TreeGrid.LayoutTransform;
 
                 //Get page size and scaling information from the printer
@@ -166,6 +172,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
                 //Restore the original scale
                 TreeGrid.LayoutTransform = originalScale;
+                Mouse.OverrideCursor = null;
             }
         }
     }

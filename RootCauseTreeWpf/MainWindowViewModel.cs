@@ -84,24 +84,30 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         public bool OpenFile(string path)
         {
-            Path = path;
-            IsFileOpen = false;
-            Problems.Clear();
-            CurrentProblem = null;
-            Graph = new Graphing.RootCauseGraph();
+            CloseFile();
             SqliteDb.GetInstance().LoadFile(path).ToList().ForEach(Problems.Add);
+            Path = path;
             IsFileOpen = true;
             return true;
         }
 
+        public void CloseFile()
+        {
+            SqliteDb.GetInstance().CloseConnection();
+            Path = string.Empty;
+            IsFileOpen = false;
+            Problems.Clear();
+            CurrentProblem = null;
+            Graph = new Graphing.RootCauseGraph();
+        }
+
         public bool NewFile(string path)
         {
+            CloseFile();
+            var conn = SqliteDb.GetInstance().CreateNewFile(path);
             Path = path;
-            Problems.Clear();
-            bool result = SqliteDb.GetInstance().CreateNewFile(path);
-            IsFileOpen = result;
-            Graph = new Graphing.RootCauseGraph();
-            return result;
+            IsFileOpen = (conn != null);
+            return IsFileOpen;
         }
 
         public void CreateProblem(string text)

@@ -45,6 +45,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void ExitApp_Click(object sender, RoutedEventArgs e)
         {
+            vm.CloseFile();
             Close();
         }
 
@@ -56,12 +57,21 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
                 SetTitle("");
                 try
                 {
+                    Mouse.OverrideCursor = Cursors.Wait;
                     vm.OpenFile(openFileDlg.FileName);
                     SetTitle(openFileDlg.SafeFileName);
                 }
                 catch (InvalidRootCauseFileException)
                 {
                     MessageBox.Show("The selected file does not appear to be a valid root cause tree.  Please select a different file.", "Invalid File");
+                }
+                catch (RootCauseFileLockedException)
+                {
+                    MessageBox.Show("The selected file is either marked as read-only or is in use by another user or application and cannot be opened at this time.", "File Cannot Be Opened");
+                }
+                finally
+                {
+                    Mouse.OverrideCursor = null;
                 }
             }
             openFileDlg.FileName = string.Empty;
@@ -315,6 +325,12 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private void SetTitle(string file)
         {
             Title = $"Arborist: {file}";
+        }
+
+        private void CloseFile_Click(object sender, RoutedEventArgs e)
+        {
+            vm.CloseFile();
+            Title = "Arborist:";
         }
     }
 }

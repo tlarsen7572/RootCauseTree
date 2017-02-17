@@ -48,10 +48,10 @@
                     <DockPanel LastChildFill="True" HorizontalAlignment="Stretch"/>
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
-            <MenuItem x:Name="PrintFile" DockPanel.Dock="Left" Header="&#x2399;" HorizontalAlignment="Left" Click="PrintFile_Click" ToolTip="Print Image"/>
-            <MenuItem x:Name="SaveFile" DockPanel.Dock="Left" Header="&#xE105;" HorizontalAlignment="Left" Click="SaveFile_Click" ToolTip="Save Image"/>
-            <MenuItem x:Name="CloseWindow" DockPanel.Dock="Right" Header="&#xE10A;" HorizontalAlignment="Right" Click="CloseWindow_Click" ToolTip="Close"/>
-            <MenuItem x:Name="MinMaxWindow" DockPanel.Dock="Right" Header="{Binding Path=MinMaxState}" HorizontalAlignment="Right" Click="MinMaxWindow_Click"/>
+            <MenuItem x:Name="PrintFile" DockPanel.Dock="Left" Header="&#x2399;" HorizontalAlignment="Left" Click="PrintFile_Click" ToolTip="Print Image" Padding="5"/>
+            <MenuItem x:Name="SaveFile" DockPanel.Dock="Left" Header="&#xE105;" HorizontalAlignment="Left" Click="SaveFile_Click" ToolTip="Save Image" Padding="5"/>
+            <MenuItem x:Name="CloseWindow" DockPanel.Dock="Right" Header="&#xE10A;" HorizontalAlignment="Right" Click="CloseWindow_Click" ToolTip="Close" Padding="5"/>
+            <MenuItem x:Name="MinMaxWindow" DockPanel.Dock="Right" Header="{Binding Path=MinMaxState}" HorizontalAlignment="Right" Click="MinMaxWindow_Click" Padding="5"/>
         </Menu>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
             <ScrollViewer.Background>

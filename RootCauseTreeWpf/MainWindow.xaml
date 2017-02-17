@@ -10,7 +10,7 @@
         xmlns:core="clr-namespace:com.PorcupineSupernova.RootCauseTreeCore"
         x:Class="com.PorcupineSupernova.RootCauseTreeWpf.MainWindow"
         mc:Ignorable="d"
-        Title="Arborist" Height="480" Width="640" Loaded="Window_Loaded" WindowState="Maximized" ResizeMode="CanResizeWithGrip" Style="{StaticResource DefaultFont}">
+        Title="Arborist:" Height="480" Width="640" Loaded="Window_Loaded" WindowState="Maximized" ResizeMode="CanResizeWithGrip" Style="{StaticResource DefaultFont}">
     <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
@@ -85,12 +85,12 @@
             />
             </Canvas>
         </Grid>
-        <GridSplitter Width="8" Name="Splitter" Grid.RowSpan="4">
+        <GridSplitter Width="16" Name="Splitter" Grid.RowSpan="4" Margin="0">
             <GridSplitter.Background>
                 <SolidColorBrush Color="{DynamicResource LightBrown}"/>
             </GridSplitter.Background>
         </GridSplitter>
-        <Grid Name="MenuArea" IsEnabled="{Binding CanInteractWithMenuArea}">
+        <Grid Name="MenuArea" IsEnabled="{Binding CanInteractWithMenuArea}" Margin="0,0,8,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -106,10 +106,11 @@
                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-                <MenuItem x:Name="MainMenu" Header="_Menu" Padding="3,9" FontSize="12 pt">
+                <MenuItem x:Name="MainMenu" Header="_Menu" Padding="5,9" FontSize="12 pt">
                     <MenuItem x:Name="NewFile" Cursor="" Header="_New" Click="NewFile_Click" Style="{StaticResource DefaultFont}"/>
                     <MenuItem x:Name="OpenFile" Header="_Open" Click="OpenFile_Click" Style="{StaticResource DefaultFont}"/>
-                    <MenuItem x:Name="SaveImage" Header="_Save Tree Image" Click="SaveImage_Click" IsEnabled="{Binding CanSaveImage}" Style="{StaticResource DefaultFont}"/>
+                    <MenuItem x:Name="CloseFile" Header="_Close" Click="CloseFile_Click" IsEnabled="{Binding IsFileOpen,FallbackValue=False,TargetNullValue=False}" Style="{StaticResource DefaultFont}"/>
+                    <MenuItem x:Name="SaveImage" Header="_Save Tree Image" Click="SaveImage_Click" IsEnabled="{Binding CanSaveImage,FallbackValue=False,TargetNullValue=False}" Style="{StaticResource DefaultFont}"/>
                     <MenuItem x:Name="ExitApp" Header="_Exit Application" Click="ExitApp_Click" Style="{StaticResource DefaultFont}"/>
                 </MenuItem>
             </Menu>

@@ -23,6 +23,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            DispatcherUnhandledException += App_DispatcherUnhandledException;
             if (e.Args != null && e.Args.Count() > 0)
             {
                 Properties["StartupFile"] = e.Args[0].ToString();
@@ -37,6 +38,12 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             }
 
             base.OnStartup(e);
+        }
+
+        private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            ErrorLogger.GetInstance().LogError(e.Exception);
+            e.Handled = true;
         }
 
         public Graphing.RootCauseGraph GenerateGraph(Node node)
@@ -71,6 +78,38 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
             recurseNodes(problem);
             return newGraph;
+        }
+
+        private class ErrorLogger
+        {
+            static ErrorLogger logger;
+            private ErrorLogger() { }
+            internal static ErrorLogger GetInstance()
+            {
+                if (logger == null)
+                    logger = new ErrorLogger();
+                return logger;
+            }
+
+            internal void LogError(Exception e)
+            {
+                var stream = new System.IO.StreamWriter("Error Log.txt", true);
+                stream.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-dd hh:mm:ss")} LOGGED EXCEPTION: {e.Message}");
+                var originalE = e;
+
+                while (e.InnerException != null)
+                {
+                    e = e.InnerException;
+                    stream.WriteLine($"INNER EXCEPTION: {e.Message}");
+                }
+                stream.WriteLine($"STACK TRACE: {originalE.StackTrace}\n");
+
+                stream.Flush();
+                stream.Dispose();
+                stream = null;
+
+                MessageBox.Show($"The following error was encountered: {originalE.Message}","Error");
+            }
         }
     }
 }

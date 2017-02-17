@@ -26,7 +26,7 @@
                 <SolidColorBrush Color="{StaticResource ErrorMsgText}"/>
             </TextBlock.Foreground>
         </TextBlock>
-        <Button x:Name="Submit" Content="Submit" Margin="4" Grid.Row="3" IsDefault="True" Click="Submit_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
-        <Button x:Name="Cancel" Content="Cancel" Grid.Column="1" Margin="4" Grid.Row="3" IsCancel="True" Click="Cancel_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin"/>
+        <Button x:Name="Submit" Content="Submit" Margin="4" Grid.Row="3" IsDefault="True" Click="Submit_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin" Padding="5"/>
+        <Button x:Name="Cancel" Content="Cancel" Grid.Column="1" Margin="4" Grid.Row="3" IsCancel="True" Click="Cancel_Click" d:LayoutOverrides="LeftMargin, RightMargin, TopMargin, BottomMargin" Padding="5"/>
     </Grid>
 </Window>
