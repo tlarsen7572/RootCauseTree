@@ -52,28 +52,32 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             bool? didOpen = openFileDlg.ShowDialog();
+            Mouse.OverrideCursor = Cursors.Wait;
             if (didOpen.HasValue && didOpen.Value == true)
             {
                 SetTitle("");
                 try
                 {
-                    Mouse.OverrideCursor = Cursors.Wait;
                     vm.OpenFile(openFileDlg.FileName);
                     SetTitle(openFileDlg.SafeFileName);
                 }
                 catch (InvalidRootCauseFileException)
                 {
+                    Mouse.OverrideCursor = null;
                     MessageBox.Show("The selected file does not appear to be a valid root cause tree.  Please select a different file.", "Invalid File");
                 }
                 catch (RootCauseFileLockedException)
                 {
+                    Mouse.OverrideCursor = null;
                     MessageBox.Show("The selected file is either marked as read-only or is in use by another user or application and cannot be opened at this time.", "File Cannot Be Opened");
                 }
-                finally
+                catch (Exception)
                 {
                     Mouse.OverrideCursor = null;
+                    throw;
                 }
             }
+            Mouse.OverrideCursor = null;
             openFileDlg.FileName = string.Empty;
         }
 
@@ -129,11 +133,13 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private void NewFile_Click(object sender, RoutedEventArgs e)
         {
             bool? didSelectFile = newFileDlg.ShowDialog();
+            Mouse.OverrideCursor = Cursors.Wait;
             if (didSelectFile.HasValue && didSelectFile.Value == true)
             {
                 vm.NewFile(newFileDlg.FileName);
                 SetTitle(newFileDlg.SafeFileName);
             }
+            Mouse.OverrideCursor = null;
             newFileDlg.FileName = string.Empty;
         }
 
