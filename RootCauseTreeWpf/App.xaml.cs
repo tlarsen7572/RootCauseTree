@@ -94,7 +94,8 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             internal void LogError(Exception e)
             {
                 var stream = new System.IO.StreamWriter("Error Log.txt", true);
-                stream.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-dd hh:mm:ss")} LOGGED EXCEPTION: {e.Message}");
+                stream.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-dd hh:mm:ss")} An exception of type {e.GetType().FullName} was thrown.");
+                stream.WriteLine($"LOGGED EXCEPTION: {e.Message}");
                 var originalE = e;
 
                 while (e.InnerException != null)
@@ -102,7 +103,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
                     e = e.InnerException;
                     stream.WriteLine($"INNER EXCEPTION: {e.Message}");
                 }
-                stream.WriteLine($"STACK TRACE: {originalE.StackTrace}\n");
+                stream.WriteLine($"STACK TRACE: {originalE.StackTrace}\n\n");
 
                 stream.Flush();
                 stream.Dispose();

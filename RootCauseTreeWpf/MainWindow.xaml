@@ -10,7 +10,14 @@
         xmlns:core="clr-namespace:com.PorcupineSupernova.RootCauseTreeCore"
         x:Class="com.PorcupineSupernova.RootCauseTreeWpf.MainWindow"
         mc:Ignorable="d"
-        Title="Arborist:" Height="480" Width="640" Loaded="Window_Loaded" WindowState="Maximized" ResizeMode="CanResizeWithGrip" Style="{StaticResource DefaultFont}">
+        Title="Arborist:"
+        Height="480"
+        Width="640"
+        Loaded="Window_Loaded"
+        WindowState="Maximized"
+        ResizeMode="CanResizeWithGrip"
+        Style="{StaticResource DefaultFont}"
+        Closing="Window_Closing">
     <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
@@ -40,7 +47,7 @@
                 </Button>
                 <Button x:Name="GetContextMenu" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="{x:Null}" Click="OpenNodeMenu_Click">
                     <Button.Background>
-                        <SolidColorBrush Color="{Binding Path=VertexType,Converter={StaticResource VertexToDarkColor},TargetNullValue={StaticResource ChildNodeDark},FallbackValue=1{StaticResource ChildNodeDark}}"/>
+                        <SolidColorBrush Color="{Binding Path=VertexType,Converter={StaticResource VertexToDarkColor},TargetNullValue={StaticResource ChildNodeDark},FallbackValue={StaticResource ChildNodeDark}}"/>
                         <!-- <SolidColorBrush Color="{StaticResource ChildNodeDark}"/> -->
                     </Button.Background>
                     <TextBlock Text="&#xE0C2;" FontFamily="Segoe UI Symbol"/>
@@ -134,7 +141,7 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="core:MainWindowViewModel">
                         <WrapPanel>
-                            <TextBlock Text="{Binding Path=InitialProblem.Text}" />
+                            <TextBlock Text="{Binding Path=InitialProblem.Text,TargetNullValue={StaticResource FallbackString},FallbackValue={StaticResource FallbackString}}" />
                         </WrapPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

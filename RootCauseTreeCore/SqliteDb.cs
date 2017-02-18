@@ -419,6 +419,10 @@ CREATE TABLE hierarchy (parentid BIGINT, childid BIGINT, PRIMARY KEY (parentid, 
 
         private SQLiteCommand CreateNewCommand()
         {
+            if (conn.State == System.Data.ConnectionState.Broken || conn.State == System.Data.ConnectionState.Closed)
+            {
+                conn.Open();
+            }
             var command = conn.CreateCommand();
             try
             {

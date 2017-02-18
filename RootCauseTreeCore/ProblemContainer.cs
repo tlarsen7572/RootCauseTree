@@ -45,9 +45,8 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         {
             if (_UndoActions.Count > 0)
             {
-                var command = _UndoActions.Pop();
-                command.Undo();
-                _RedoActions.Push(command);
+                _UndoActions.Peek().Undo();
+                _RedoActions.Push(_UndoActions.Pop());
             }
         }
 
@@ -55,9 +54,8 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
         {
             if (_RedoActions.Count > 0)
             {
-                var command = _RedoActions.Pop();
-                command.Execute();
-                _UndoActions.Push(command);
+                _RedoActions.Peek().Execute();
+                _UndoActions.Push(_RedoActions.Pop());
             }
         }
 
