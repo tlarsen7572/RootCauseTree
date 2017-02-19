@@ -2,13 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:com.PorcupineSupernova.RootCauseTreeWpf"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
-    <Color x:Key="LightBrown" R="245" G="222" B="179" A="255" />
-    <Color x:Key="DarkBrown" R="214" G="186" B="133" A="255" />
-    <Color x:Key="VeryLightGreen" R="240" G="255" B="240" A="255" />
-    <Color x:Key="LightGreen" R="204" G="255" B="206" A="255" />
-    <Color x:Key="DarkGreen" R="178" G="234" B="172" A="255" />
+    <Color x:Key="BaseBrown" R="236" G="217" B="198" A="255" />
+    <Color x:Key="DarkBrown" R="230" G="204" B="179" A="255" />
+    <Color x:Key="VeryDarkBrown" R="223" G="190" B="159" A="255" />
+    <Color x:Key="BaseGreen" R="217" G="242" B="217" A="255" />
+    <Color x:Key="LightGreen" R="236" G="249" B="236" A="255" />
+    <Color x:Key="DarkGreen" R="177" G="231" B="177" A="255" />
     <Color x:Key="ErrorMsgText" R="155" G="0" B="0" A="255" />
-    <Color x:Key="BrownFont" R="134" G="103" B="45" A="255" />
     <Color x:Key="DisabledFont" R="80" G="80" B="80" A="255" />
     <Color x:Key="RootNode" R="255" G="204" B="204" A="255" />
     <Color x:Key="RootNodeDark" R="255" G="179" B="179" A="255" />
