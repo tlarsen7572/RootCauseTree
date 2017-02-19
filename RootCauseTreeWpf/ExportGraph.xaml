@@ -36,7 +36,7 @@
     </Window.Resources>
     <Grid>
         <Grid.Background>
-            <SolidColorBrush Color="{DynamicResource LightBrown}"/>
+            <SolidColorBrush Color="{DynamicResource BaseBrown}"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -55,7 +55,7 @@
         </Menu>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1">
             <ScrollViewer.Background>
-                <SolidColorBrush Color="{DynamicResource VeryLightGreen}"/>
+                <SolidColorBrush Color="{DynamicResource LightGreen}"/>
             </ScrollViewer.Background>
             <Grid Width="Auto" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid x:Name="TreeGrid" Margin="0">

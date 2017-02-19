@@ -74,7 +74,7 @@
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Name="TreeContainer" MouseLeftButtonDown="TreeContainer_MouseLeftButtonDown" MouseLeftButtonUp="TreeContainer_MouseLeftButtonUp" MouseMove="TreeContainer_MouseMove" MouseWheel="TreeContainer_MouseWheel" Grid.RowSpan="4">
             <Grid.Background>
-                <SolidColorBrush Color="{DynamicResource VeryLightGreen}"/>
+                <SolidColorBrush Color="{DynamicResource LightGreen}"/>
             </Grid.Background>
             <Canvas Name="TreeCanvas">
                 <Canvas.RenderTransform>
@@ -94,7 +94,7 @@
         </Grid>
         <GridSplitter Width="16" Name="Splitter" Grid.RowSpan="4" Margin="0">
             <GridSplitter.Background>
-                <SolidColorBrush Color="{DynamicResource LightBrown}"/>
+                <SolidColorBrush Color="{DynamicResource VeryDarkBrown}"/>
             </GridSplitter.Background>
         </GridSplitter>
         <Grid Name="MenuArea" IsEnabled="{Binding CanInteractWithMenuArea}" Margin="0,0,8,0">
@@ -106,7 +106,7 @@
             </Grid.RowDefinitions>
             <Menu Margin="0,0,8,0" VerticalAlignment="Top" Grid.Row="0">
                 <Menu.Background>
-                    <SolidColorBrush Color="{DynamicResource LightBrown}"/>
+                    <SolidColorBrush Color="{DynamicResource BaseBrown}"/>
                 </Menu.Background>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -146,7 +146,7 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
                 <ListBox.Background>
-                    <SolidColorBrush Color="{DynamicResource LightGreen}"/>
+                    <SolidColorBrush Color="{DynamicResource BaseGreen}"/>
                 </ListBox.Background>
             </ListBox>
             <Button x:Name="AddProblem" Grid.Row="3" Content="&#xE109; Problem" Margin="0,0,8,0" VerticalAlignment="Bottom" BorderBrush="#FFF0F0F0" Click="AddProblem_Click" IsEnabled="{Binding IsFileOpen}" Padding="5" ToolTip="Add a new problem statement">
@@ -157,7 +157,7 @@
         </Grid>
         <Grid Name="AddLinkDialog" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="Auto" Height="Auto" Grid.Column="1" MaxWidth="200" Margin="0,0,10,10" Visibility="{Binding ShowCancelAddLink}">
             <Grid.Background>
-                <SolidColorBrush Color="{StaticResource LightBrown}"/>
+                <SolidColorBrush Color="{StaticResource BaseBrown}"/>
             </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
