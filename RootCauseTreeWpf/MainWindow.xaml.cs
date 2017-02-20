@@ -35,7 +35,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private double MinScale = 0.3;
         private Node contextMenuNode;
         private Graphing.RootCauseEdge contextMenuEdge;
-        private Node linkParent;
+        private Graphing.RootCauseVertex linkParent;
         private bool isLinking;
 
         public MainWindow()
@@ -230,13 +230,15 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void StartLink_Click(object sender, RoutedEventArgs e)
         {
-            linkParent = (((FrameworkElement)sender).DataContext as Graphing.RootCauseVertex).Source;
+            linkParent = ((FrameworkElement)sender).DataContext as Graphing.RootCauseVertex;
+            linkParent.Select();
             isLinking = true;
             vm.CanInteractWithMenuArea = false;
         }
 
         private void CancelLink_Click(object sender, RoutedEventArgs e)
         {
+            linkParent.UnSelect();
             linkParent = null;
             isLinking = false;
             vm.CanInteractWithMenuArea = true;
@@ -296,7 +298,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void CreateLink(Node child)
         {
-            vm.AddLink(linkParent, child);
+            vm.AddLink(linkParent.Source, child);
             isLinking = false;
             linkParent = null;
             vm.CanInteractWithMenuArea = true;
