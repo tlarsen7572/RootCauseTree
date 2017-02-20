@@ -13,6 +13,8 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             var nodeType = (Graphing.RootCauseVertexType)value;
             switch (nodeType)
             {
+                case Graphing.RootCauseVertexType.SelectedNode:
+                    return (Color)App.Current.FindResource("SelectedNode");
                 case Graphing.RootCauseVertexType.RootNode:
                     return (Color)App.Current.FindResource("RootNode");
                 case Graphing.RootCauseVertexType.FinalChildNode:
@@ -36,6 +38,8 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             var nodeType = (Graphing.RootCauseVertexType)value;
             switch (nodeType)
             {
+                case Graphing.RootCauseVertexType.SelectedNode:
+                    return (Color)App.Current.FindResource("SelectedNodeDark");
                 case Graphing.RootCauseVertexType.RootNode:
                     return (Color)App.Current.FindResource("RootNodeDark");
                 case Graphing.RootCauseVertexType.FinalChildNode:

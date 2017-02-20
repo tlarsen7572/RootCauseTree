@@ -16,6 +16,8 @@
     <Color x:Key="ChildNodeDark" R="217" G="217" B="217" A="255" />
     <Color x:Key="FinalChildNode" R="179" G="255" B="240" A="255" />
     <Color x:Key="FinalChildNodeDark" R="153" G="255" B="235" A="255" />
+    <Color x:Key="SelectedNode" R="255" G="255" B="102" A="255" />
+    <Color x:Key="SelectedNodeDark" R="255" G="255" B="0" A="255" />
     <FontFamily x:Key="DefaultFontFamily">Segoe UI Symbol</FontFamily>
     <Style x:Key="IconFont" TargetType="Control">
         <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
