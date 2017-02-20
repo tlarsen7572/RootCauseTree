@@ -76,6 +76,53 @@
             <Grid.Background>
                 <SolidColorBrush Color="{DynamicResource LightGreen}"/>
             </Grid.Background>
+            <Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform" Grid.Column="1" Width="250" Height="250">
+                <Canvas Name="svg2" Width="1000" Height="1000">
+                    <Canvas.RenderTransform>
+                        <TranslateTransform X="0" Y="0"/>
+                    </Canvas.RenderTransform>
+                    <Canvas.Resources/>
+                    <!--Unknown tag: sodipodi:namedview-->
+                    <!--Unknown tag: metadata-->
+                    <Canvas Name="layer1">
+                        <Canvas.RenderTransform>
+                            <TranslateTransform X="0" Y="-52.36222"/>
+                        </Canvas.RenderTransform>
+                        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4165" Fill="#FFFFFF">
+                            <Path.Data>
+                                <PathGeometry Figures="m 675.12486 1050.339 -301.46261 0 150.73131 -261.07424 z" FillRule="NonZero"/>
+                            </Path.Data>
+                            <Path.RenderTransform>
+                                <MatrixTransform Matrix="0.66343221 0 0 3.6388112 152.10043 -2769.6232"/>
+                            </Path.RenderTransform>
+                        </Path>
+                        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path3340" Fill="#FFFFFF" StrokeThickness="1" StrokeLineJoin="Miter" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat">
+                            <Path.Data>
+                                <PathGeometry Figures="m 647.6187 578.21378 -321.9044 0 -321.9044082 -1e-5 L 164.76209 299.43639 325.7143 20.658997 486.66649 299.43638 Z" FillRule="evenodd"/>
+                            </Path.Data>
+                            <Path.RenderTransform>
+                                <MatrixTransform Matrix="1.5532562 0 0 0.9685147 -5.9177381 262.35368"/>
+                            </Path.RenderTransform>
+                        </Path>
+                        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path33403" Fill="#FFFFFF" StrokeThickness="1" StrokeLineJoin="Miter" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat">
+                            <Path.Data>
+                                <PathGeometry Figures="m 647.6187 578.21378 -321.9044 0 -321.9044082 -1e-5 L 164.76209 299.43639 325.7143 20.658997 486.66649 299.43638 Z" FillRule="evenodd"/>
+                            </Path.Data>
+                            <Path.RenderTransform>
+                                <MatrixTransform Matrix="1.0872793 0 0 0.68154738 145.85758 148.28214"/>
+                            </Path.RenderTransform>
+                        </Path>
+                        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path33400" Fill="#FFFFFF" StrokeThickness="1" StrokeLineJoin="Miter" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat">
+                            <Path.Data>
+                                <PathGeometry Figures="m 647.6187 578.21378 -321.9044 0 -321.9044082 -1e-5 L 164.76209 299.43639 325.7143 20.658997 486.66649 299.43638 Z" FillRule="evenodd"/>
+                            </Path.Data>
+                            <Path.RenderTransform>
+                                <MatrixTransform Matrix="0.69896528 0 0 0.44838643 272.33702 43.099007"/>
+                            </Path.RenderTransform>
+                        </Path>
+                    </Canvas>
+                </Canvas>
+            </Viewbox>
             <Canvas Name="TreeCanvas">
                 <Canvas.RenderTransform>
                     <MatrixTransform/>
