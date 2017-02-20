@@ -85,10 +85,21 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         public bool OpenFile(string path)
         {
             CloseFile();
+            CheckForNetworkPath(path);
             SqliteDb.GetInstance().LoadFile(path).ToList().ForEach(Problems.Add);
             Path = path;
             IsFileOpen = true;
             return true;
+        }
+
+        public bool NewFile(string path)
+        {
+            CloseFile();
+            CheckForNetworkPath(path);
+            var conn = SqliteDb.GetInstance().CreateNewFile(path);
+            Path = path;
+            IsFileOpen = (conn != null);
+            return IsFileOpen;
         }
 
         public void CloseFile()
@@ -101,13 +112,19 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             Graph = new Graphing.RootCauseGraph();
         }
 
-        public bool NewFile(string path)
+        private void CheckForNetworkPath(string path)
         {
-            CloseFile();
-            var conn = SqliteDb.GetInstance().CreateNewFile(path);
-            Path = path;
-            IsFileOpen = (conn != null);
-            return IsFileOpen;
+            bool isNetwork = false;
+            var info = new System.IO.FileInfo(path);
+            var root = info.Directory.Root;
+            if (root.FullName.Substring(0, 2).Equals(@"\\")) isNetwork = true;
+            else
+            {
+                var drive = new System.IO.DriveInfo(root.FullName.Substring(0,1));
+                if (drive.DriveType == System.IO.DriveType.Network)
+                    isNetwork = true;
+            }
+            if (isNetwork) MessageBox.Show("The selected file is on a network location.  It is recommended you work on your local machine and copy the file to the network after you are finished.");
         }
 
         public void CreateProblem(string text)

@@ -7,8 +7,8 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Arborist")]
-[assembly: AssemblyDescription("A tool to faciliate creation of root cause tree analyses.")]
+[assembly: AssemblyTitle("Grow root cause trees")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Porcupine Supernova LLC")]
 [assembly: AssemblyProduct("Arborist")]
