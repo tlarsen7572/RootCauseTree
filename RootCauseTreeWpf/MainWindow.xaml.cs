@@ -51,13 +51,11 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void OpenFilePath(string path)
         {
-            SetTitle("");
             Mouse.OverrideCursor = Cursors.Wait;
             var info = new System.IO.FileInfo(path);
             try
             {
                 vm.OpenFile(path);
-                SetTitle(info.Name);
             }
             catch (InvalidRootCauseFileException)
             {
@@ -87,6 +85,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             SetUpSaveDialog(newFileDlg, rootCauseExt, rootCauseFilter);
             vm.CanInteractWithMenuArea = true;
             RootCauseLayout.LayoutParameters = vm.algs;
+            vm.FileChanged += FileChanged;
 
             if (App.Current.Properties["StartupFile"] != null)
             {
@@ -125,7 +124,6 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             if (didSelectFile.HasValue && didSelectFile.Value == true)
             {
                 vm.NewFile(newFileDlg.FileName);
-                SetTitle(newFileDlg.SafeFileName);
             }
             Mouse.OverrideCursor = null;
             newFileDlg.FileName = string.Empty;
@@ -326,12 +324,16 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private void CloseFile_Click(object sender, RoutedEventArgs e)
         {
             vm.CloseFile();
-            SetTitle("");
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             SqliteDb.GetInstance().CloseConnection();
+        }
+
+        private void FileChanged(string fileName)
+        {
+            SetTitle(fileName);
         }
     }
 }

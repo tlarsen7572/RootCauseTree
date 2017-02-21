@@ -12,6 +12,19 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
+        public delegate void FileChangedEventHandler(string fileName);
+        public event FileChangedEventHandler FileChanged;
+        private void NotifyFileChanged()
+        {
+            string fileName;
+            if (Path.Equals(string.Empty)) fileName = string.Empty;
+            else
+            {
+                fileName = new System.IO.FileInfo(Path).Name;
+            }
+            FileChanged?.Invoke(fileName);
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string property)
         {
@@ -89,6 +102,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             SqliteDb.GetInstance().LoadFile(path).ToList().ForEach(Problems.Add);
             Path = path;
             IsFileOpen = true;
+            NotifyFileChanged();
             return true;
         }
 
@@ -99,6 +113,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             var conn = SqliteDb.GetInstance().CreateNewFile(path);
             Path = path;
             IsFileOpen = (conn != null);
+            NotifyFileChanged();
             return IsFileOpen;
         }
 
@@ -110,6 +125,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             Problems.Clear();
             CurrentProblem = null;
             Graph = new Graphing.RootCauseGraph();
+            NotifyFileChanged();
         }
 
         private void CheckForNetworkPath(string path)
@@ -165,7 +181,18 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         public void DeleteProblem()
         {
-            new RemoveNodeChainCommand(SqliteDb.GetInstance(), currentProblem.InitialProblem,true);
+            try
+            {
+                new RemoveNodeChainCommand(SqliteDb.GetInstance(), currentProblem.InitialProblem, true);
+            }
+            catch (System.Data.SQLite.SQLiteException)
+            {
+                ProcessConnectionLost();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
             Problems.Remove(currentProblem);
             currentProblem = null;
             GenerateGraph();
@@ -193,7 +220,18 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
 
         private void ExecuteCommand(IRootCauseCommand command)
         {
-            CurrentProblem.AddAction(command);
+            try
+            {
+                CurrentProblem.AddAction(command);
+            }
+            catch (System.Data.SQLite.SQLiteException)
+            {
+                ProcessConnectionLost();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
             GenerateGraph();
             NotifyUndoRedo();
         }
@@ -202,6 +240,13 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         {
             NotifyPropertyChanged("CanUndo");
             NotifyPropertyChanged("CanRedo");
+        }
+
+        private void ProcessConnectionLost()
+        {
+            MessageBox.Show("The connection to the file has been lost and will be closed.  Please re-open the file to continue working.", "File Connection Lost");
+
+            CloseFile();
         }
 
         private void NotifyCurrentProblemChanged()
