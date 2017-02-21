@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using com.PorcupineSupernova.RootCauseTreeWpf;
 using com.PorcupineSupernova.RootCauseTreeCore;
 using Microsoft.Win32;
 
@@ -51,7 +42,6 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             bool? didOpen = openFileDlg.ShowDialog();
-            Mouse.OverrideCursor = Cursors.Wait;
             if (didOpen.HasValue && didOpen.Value == true)
             {
                 OpenFilePath(openFileDlg.FileName);

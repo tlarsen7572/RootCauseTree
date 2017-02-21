@@ -124,7 +124,7 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
                 if (drive.DriveType == System.IO.DriveType.Network)
                     isNetwork = true;
             }
-            if (isNetwork) MessageBox.Show("The selected file is on a network location.  It is recommended you work on your local machine and copy the file to the network after you are finished.");
+            if (isNetwork) MessageBox.Show("The selected file is on a network location.  It is recommended you work on your local machine and copy the file to the network after you are finished.","Network File Warning");
         }
 
         public void CreateProblem(string text)

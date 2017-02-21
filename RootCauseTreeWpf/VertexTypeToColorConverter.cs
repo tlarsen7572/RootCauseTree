@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Data;
-using com.PorcupineSupernova.RootCauseTreeWpf;
 using System.Windows.Media;
 
 namespace com.PorcupineSupernova.RootCauseTreeWpf
