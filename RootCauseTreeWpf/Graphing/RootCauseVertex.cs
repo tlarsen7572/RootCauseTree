@@ -1,5 +1,4 @@
 ﻿using com.PorcupineSupernova.RootCauseTreeCore;
-using System.Windows.Media;
 using System.ComponentModel;
 
 namespace com.PorcupineSupernova.RootCauseTreeWpf.Graphing

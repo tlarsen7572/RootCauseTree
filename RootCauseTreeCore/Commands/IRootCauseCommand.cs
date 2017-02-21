@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace com.PorcupineSupernova.RootCauseTreeCore
+﻿namespace com.PorcupineSupernova.RootCauseTreeCore
 {
     interface IRootCauseCommand
     {
