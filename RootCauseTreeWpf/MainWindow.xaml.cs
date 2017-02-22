@@ -86,12 +86,21 @@ namespace com.PorcupineSupernova.RootCauseTreeWpf
             vm.CanInteractWithMenuArea = true;
             RootCauseLayout.LayoutParameters = vm.algs;
             vm.FileChanged += FileChanged;
+            PopulateVersion();
 
             if (App.Current.Properties["StartupFile"] != null)
             {
                 string file = App.Current.Properties["StartupFile"].ToString();
                 OpenFilePath(file);
             }
+        }
+
+        private void PopulateVersion()
+        {
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var info = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+            var versionArray = info.FileVersion.Split('.').Take(3);
+            VersionLabel.Header = $"Version {string.Join(".",versionArray)}";
         }
 
         private void SetUpSaveDialog(SaveFileDialog dlg,string extension,string filter)

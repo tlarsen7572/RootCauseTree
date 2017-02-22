@@ -166,6 +166,8 @@
                     <MenuItem x:Name="CloseFile" Header="_Close" Click="CloseFile_Click" IsEnabled="{Binding IsFileOpen,FallbackValue=False,TargetNullValue=False}" Style="{StaticResource DefaultFont}"/>
                     <MenuItem x:Name="SaveImage" Header="_Save Tree Image" Click="SaveImage_Click" IsEnabled="{Binding CanSaveImage,FallbackValue=False,TargetNullValue=False}" Style="{StaticResource DefaultFont}"/>
                     <MenuItem x:Name="ExitApp" Header="_Exit Application" Click="ExitApp_Click" Style="{StaticResource DefaultFont}"/>
+                    <Separator/>
+                    <MenuItem x:Name="VersionLabel" Style="{StaticResource DefaultFont}" IsEnabled="False"/>
                 </MenuItem>
             </Menu>
             <Grid Margin="0,0,8,0" d:LayoutOverrides="Height" Grid.Row="1">
