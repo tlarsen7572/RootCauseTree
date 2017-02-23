@@ -45,7 +45,10 @@ namespace com.PorcupineSupernova.RootCauseTreeCore
             ProblemContainer problem;
             Node node;
 
-            var command = CreateNewCommand();
+            var command = new SQLiteCommand("VACUUM", conn);
+            command.ExecuteNonQuery();
+            command.Dispose();
+            command = CreateNewCommand();
             command.CommandText = "PRAGMA locking_mode=EXCLUSIVE;";
             command.ExecuteNonQuery();
             CommitAndCleanUp(command);
