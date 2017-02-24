@@ -142,12 +142,17 @@
             />
             </Canvas>
         </Grid>
-        <GridSplitter Width="16" Name="Splitter" Grid.RowSpan="4" Margin="0">
+        <GridSplitter Width="24" Name="Splitter" Grid.RowSpan="4" Margin="0">
             <GridSplitter.Background>
-                <SolidColorBrush Color="{DynamicResource VeryDarkBrown}"/>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="{DynamicResource VeryDarkBrown}" Offset="0"/>
+                    <GradientStop Color="{DynamicResource VeryDarkBrown}" Offset="0.4"/>
+                    <GradientStop Color="{DynamicResource Shadow}" Offset="0.4"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </LinearGradientBrush>
             </GridSplitter.Background>
         </GridSplitter>
-        <Grid Name="MenuArea" IsEnabled="{Binding CanInteractWithMenuArea}" Margin="0,0,8,0">
+        <Grid Name="MenuArea" IsEnabled="{Binding CanInteractWithMenuArea}" Margin="0,0,16,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
