@@ -2,12 +2,12 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:com.PorcupineSupernova.RootCauseTreeWpf"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
-    <Color x:Key="BaseBrown" R="236" G="217" B="198" A="255" />
-    <Color x:Key="DarkBrown" R="230" G="204" B="179" A="255" />
-    <Color x:Key="VeryDarkBrown" R="223" G="190" B="159" A="255" />
-    <Color x:Key="BaseGreen" R="217" G="242" B="217" A="255" />
-    <Color x:Key="LightGreen" R="236" G="249" B="236" A="255" />
-    <Color x:Key="DarkGreen" R="177" G="231" B="177" A="255" />
+    <Color x:Key="BaseBrown" R="253" G="208" B="129" A="255" />
+    <Color x:Key="DarkBrown" R="252" G="181" B="57" A="255" />
+    <Color x:Key="VeryDarkBrown" R="93" G="45" B="9" A="255" />
+    <Color x:Key="BaseGreen" R="212" G="235" B="173" A="255" />
+    <Color x:Key="LightGreen" R="244" G="250" B="234" A="255" />
+    <Color x:Key="DarkGreen" R="180" G="220" B="111" A="255" />
     <Color x:Key="ErrorMsgText" R="155" G="0" B="0" A="255" />
     <Color x:Key="DisabledFont" R="80" G="80" B="80" A="255" />
     <Color x:Key="RootNode" R="255" G="204" B="204" A="255" />
@@ -18,6 +18,7 @@
     <Color x:Key="FinalChildNodeDark" R="153" G="255" B="235" A="255" />
     <Color x:Key="SelectedNode" R="255" G="255" B="102" A="255" />
     <Color x:Key="SelectedNodeDark" R="255" G="255" B="0" A="255" />
+    <Color x:Key="Shadow" R="26" G="26" B="26" A="100" />
     <FontFamily x:Key="DefaultFontFamily">Segoe UI Symbol</FontFamily>
     <Style x:Key="IconFont" TargetType="Control">
         <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>

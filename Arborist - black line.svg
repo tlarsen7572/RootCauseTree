@@ -1,48 +1,163 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="line_art_black" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-	 y="0px" width="828px" height="702px" viewBox="0 0 828 702" enable-background="new 0 0 828 702" xml:space="preserve">
-<g id="Layer_4_copy_2">
-	<path fill="none" stroke="#000000" stroke-width="17" stroke-miterlimit="10" d="M407.04,29.04
-		c98.551-4.08,213.84,189.607,213.84,312.879s-95.739,223.203-213.84,223.203"/>
-	<g id="Layer_4_copy_2_1_">
-		<path fill="none" stroke="#000000" stroke-width="17" stroke-miterlimit="10" d="M408.481,29.04
-			C309.929,24.96,194.64,218.647,194.64,341.919s95.739,223.203,213.841,223.203"/>
-	</g>
-</g>
-<g id="Layer_8_copy_3">
-	<path d="M399.151,498.016c0.165,16.869,0.328,33.534,0.488,49.926c0.355,32.783,0.832,64.474,1.343,94.525
-		c0.102,5.831,0.207,11.574,0.313,17.274c4.781-0.252,9.581-0.316,14.38-0.405c0.104-5.568,0.206-11.177,0.306-16.869
-		c0.511-30.052,0.987-61.742,1.343-94.525c0.16-16.392,0.323-33.057,0.488-49.926c0.152-16.87,0.289-33.944,0.355-51.156
-		c0.224-34.422,0.255-69.391,0.311-104.359c-0.054-34.969-0.071-69.938-0.296-104.36c-0.044-8.605-0.089-17.177-0.133-25.706
-		c-0.072-8.529-0.145-17.015-0.216-25.45c-0.163-16.87-0.324-33.535-0.483-49.926c-0.355-32.783-0.83-64.474-1.339-94.525
-		c-0.082-4.668-0.166-9.282-0.25-13.869c-4.856,0.277-9.711,0.438-14.564,0.297c-0.083,4.489-0.165,9.005-0.245,13.572
-		c-0.509,30.051-0.983,61.742-1.339,94.525c-0.159,16.392-0.32,33.057-0.483,49.926c-0.072,8.435-0.144,16.921-0.216,25.45
-		c-0.044,8.528-0.088,17.1-0.132,25.706c-0.225,34.422-0.242,69.391-0.296,104.36c0.057,34.969,0.087,69.938,0.311,104.359
-		C398.861,464.071,398.998,481.146,399.151,498.016z"/>
-	<g id="Layer_8_copy_3_1_">
-		
-			<line fill="none" stroke="#000000" stroke-width="20" stroke-linejoin="round" stroke-miterlimit="10" x1="408.481" y1="676" x2="408.48" y2="386"/>
-	</g>
-</g>
-<g id="Layer_12_copy">
-	
-		<line fill="none" stroke="#000000" stroke-width="17" stroke-miterlimit="10" x1="407.04" y1="499.682" x2="194.675" y2="338.313"/>
-	
-		<line fill="none" stroke="#000000" stroke-width="17" stroke-miterlimit="10" x1="408.481" y1="553.129" x2="614.469" y2="396.364"/>
-	
-		<line fill="none" stroke="#000000" stroke-width="17" stroke-miterlimit="10" x1="408.48" y1="445.329" x2="576.769" y2="182.781"/>
-	<line fill="none" stroke="#000000" stroke-width="17" stroke-miterlimit="10" x1="408.481" y1="403" x2="251.626" y2="158.937"/>
-	<line fill="none" stroke="#000000" stroke-width="17" stroke-miterlimit="10" x1="408.481" y1="351" x2="475.065" y2="53.603"/>
-	<line fill="none" stroke="#000000" stroke-width="17" stroke-miterlimit="10" x1="408.48" y1="213.5" x2="348.595" y2="48.054"/>
-</g>
-<g id="Layer_13_copy">
-	<line fill="none" stroke="#000000" stroke-width="9" stroke-miterlimit="10" x1="461.5" y1="513.75" x2="529.25" y2="526.125"/>
-	<line fill="none" stroke="#000000" stroke-width="9" stroke-miterlimit="10" x1="349.491" y1="456.738" x2="237.5" y2="478.065"/>
-	<line fill="none" stroke="#000000" stroke-width="9" stroke-miterlimit="10" x1="359" y1="323" x2="207.5" y2="253.25"/>
-	<line fill="none" stroke="#000000" stroke-width="9" stroke-miterlimit="10" x1="383.402" y1="144.216" x2="309.843" y2="80.334"/>
-	<line fill="none" stroke="#000000" stroke-width="9" stroke-miterlimit="10" x1="434.97" y1="232.688" x2="525.396" y2="102.538"/>
-	<line fill="none" stroke="#000000" stroke-width="9" stroke-miterlimit="10" x1="452.165" y1="375.75" x2="617.425" y2="300.877"/>
-</g>
-</svg>
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="line_art_black"
+   x="0px"
+   y="0px"
+   width="450"
+   height="660"
+   viewBox="0 0 450 660"
+   enable-background="new 0 0 828 702"
+   xml:space="preserve"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="Arborist - black line.svg"><metadata
+     id="metadata45"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+     id="defs43" /><sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1600"
+     inkscape:window-height="837"
+     id="namedview41"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="0.67236467"
+     inkscape:cx="180.46393"
+     inkscape:cy="312.54196"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="line_art_black" /><g
+     id="Layer_4_copy_2"
+     transform="translate(-182.14,-18.000051)"><path
+       stroke-miterlimit="10"
+       d="m 407.04,29.04 c 98.551,-4.08 213.84,189.607 213.84,312.879 0,123.272 -95.739,223.203 -213.84,223.203"
+       id="path4"
+       inkscape:connector-curvature="0"
+       style="fill:none;stroke:#000000;stroke-width:17;stroke-miterlimit:10" /><g
+       id="Layer_4_copy_2_1_"><path
+         stroke-miterlimit="10"
+         d="M 408.481,29.04 C 309.929,24.96 194.64,218.647 194.64,341.919 c 0,123.272 95.739,223.203 213.841,223.203"
+         id="path7"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:17;stroke-miterlimit:10" /></g></g><g
+     id="Layer_8_copy_3"
+     transform="translate(-182.14,-18.000051)"><path
+       d="m 399.151,498.016 c 0.165,16.869 0.328,33.534 0.488,49.926 0.355,32.783 0.832,64.474 1.343,94.525 0.102,5.831 0.207,11.574 0.313,17.274 4.781,-0.252 9.581,-0.316 14.38,-0.405 0.104,-5.568 0.206,-11.177 0.306,-16.869 0.511,-30.052 0.987,-61.742 1.343,-94.525 0.16,-16.392 0.323,-33.057 0.488,-49.926 0.152,-16.87 0.289,-33.944 0.355,-51.156 0.224,-34.422 0.255,-69.391 0.311,-104.359 -0.054,-34.969 -0.071,-69.938 -0.296,-104.36 -0.044,-8.605 -0.089,-17.177 -0.133,-25.706 -0.072,-8.529 -0.145,-17.015 -0.216,-25.45 -0.163,-16.87 -0.324,-33.535 -0.483,-49.926 -0.355,-32.783 -0.83,-64.474 -1.339,-94.525 -0.082,-4.668 -0.166,-9.282 -0.25,-13.869 -4.856,0.277 -9.711,0.438 -14.564,0.297 -0.083,4.489 -0.165,9.005 -0.245,13.572 -0.509,30.051 -0.983,61.742 -1.339,94.525 -0.159,16.392 -0.32,33.057 -0.483,49.926 -0.072,8.435 -0.144,16.921 -0.216,25.45 -0.044,8.528 -0.088,17.1 -0.132,25.706 -0.225,34.422 -0.242,69.391 -0.296,104.36 0.057,34.969 0.087,69.938 0.311,104.359 0.064,17.211 0.201,34.286 0.354,51.156 z"
+       id="path10"
+       inkscape:connector-curvature="0" /><g
+       id="Layer_8_copy_3_1_"><line
+         stroke-miterlimit="10"
+         x1="408.48099"
+         y1="676"
+         x2="408.48001"
+         y2="386"
+         id="line13"
+         style="fill:none;stroke:#000000;stroke-width:20;stroke-linejoin:round;stroke-miterlimit:10" /></g></g><g
+     id="Layer_12_copy"
+     transform="translate(-182.14,-18.000051)"><line
+       stroke-miterlimit="10"
+       x1="407.04001"
+       y1="499.68201"
+       x2="194.675"
+       y2="338.31299"
+       id="line16"
+       style="fill:none;stroke:#000000;stroke-width:17;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="408.48099"
+       y1="553.12903"
+       x2="614.46899"
+       y2="396.36401"
+       id="line18"
+       style="fill:none;stroke:#000000;stroke-width:17;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="408.48001"
+       y1="445.32901"
+       x2="576.76898"
+       y2="182.78101"
+       id="line20"
+       style="fill:none;stroke:#000000;stroke-width:17;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="408.48099"
+       y1="403"
+       x2="251.62601"
+       y2="158.937"
+       id="line22"
+       style="fill:none;stroke:#000000;stroke-width:17;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="408.48099"
+       y1="351"
+       x2="475.065"
+       y2="53.603001"
+       id="line24"
+       style="fill:none;stroke:#000000;stroke-width:17;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="408.48001"
+       y1="213.5"
+       x2="348.595"
+       y2="48.054001"
+       id="line26"
+       style="fill:none;stroke:#000000;stroke-width:17;stroke-miterlimit:10" /></g><g
+     id="Layer_13_copy"
+     transform="translate(-182.14,-18.000051)"><line
+       stroke-miterlimit="10"
+       x1="461.5"
+       y1="513.75"
+       x2="529.25"
+       y2="526.125"
+       id="line29"
+       style="fill:none;stroke:#000000;stroke-width:9;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="349.491"
+       y1="456.73801"
+       x2="237.5"
+       y2="478.065"
+       id="line31"
+       style="fill:none;stroke:#000000;stroke-width:9;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="359"
+       y1="323"
+       x2="207.5"
+       y2="253.25"
+       id="line33"
+       style="fill:none;stroke:#000000;stroke-width:9;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="383.40201"
+       y1="144.216"
+       x2="309.84299"
+       y2="80.334"
+       id="line35"
+       style="fill:none;stroke:#000000;stroke-width:9;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="434.97"
+       y1="232.688"
+       x2="525.396"
+       y2="102.538"
+       id="line37"
+       style="fill:none;stroke:#000000;stroke-width:9;stroke-miterlimit:10" /><line
+       stroke-miterlimit="10"
+       x1="452.16501"
+       y1="375.75"
+       x2="617.42499"
+       y2="300.87701"
+       id="line39"
+       style="fill:none;stroke:#000000;stroke-width:9;stroke-miterlimit:10" /></g></svg>
