@@ -6,6 +6,7 @@ Arborist is a tool to facilitate the creation of root cause trees.  Traditionall
 
 Clone the project to your local machine and open RootCauseTree.sln in Visual Studio 2015 or above.
 Install the following NuGet packages to the solution:
+
 * GraphSharp v1.1.0 or above
 * IdGen v2.0.1 or above
 * System.Data.SQLite.Core v1.0.104 or above
@@ -21,6 +22,7 @@ The UI is built with WPF and roughly incorporates the View and ViewModel element
 ## Tests
 
 The RootCauseTreeTests project contains the tests for the model objects.  The tests are divided into the following files:
+
 * CommandTests: Tests the commands which are used to interact with the nodes.
 * SqliteDbTests: Tests the database layer
 
